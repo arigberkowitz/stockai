@@ -756,11 +756,13 @@ with tab3:
                     if news:
                         for n in news:
                             st.markdown(f"""
-                            <div class="news-item">
-                                <div class="news-title">{n['title']}</div>
-                                <div class="news-meta">{n['source']} &nbsp;·&nbsp; {n['pub']}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
+<a href="{n['link']}" target="_blank" style="text-decoration:none;">
+    <div class="news-item" style="cursor:pointer;">
+        <div class="news-title">{n['title']}</div>
+        <div class="news-meta">{n['source']} &nbsp;·&nbsp; {n['pub']}</div>
+    </div>
+</a>
+""", unsafe_allow_html=True)
                     else:
                         st.markdown('<div style="color:#8b949e;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
 
