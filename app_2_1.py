@@ -554,7 +554,7 @@ with tab1:
         df = fetch_quotes(st.session_state.watchlist)
         valid = df[df["Price"] != 0]
 
-        if not valid.empty:
+       if not valid.empty:
             up   = int((valid["% Change"] >= 0).sum())
             down = int((valid["% Change"] < 0).sum())
             avg  = valid["% Change"].mean()
@@ -562,7 +562,10 @@ with tab1:
             with c1:
                 st.markdown(f'<div class="metric-card"><div class="metric-label">Watching</div><div class="metric-value">{len(st.session_state.watchlist)}</div></div>', unsafe_allow_html=True)
             with c2:
-                with c4:
+                st.markdown(f'<div class="metric-card"><div class="metric-label">▲ Up Today</div><div class="metric-value green">{up}</div></div>', unsafe_allow_html=True)
+            with c3:
+                st.markdown(f'<div class="metric-card"><div class="metric-label">▼ Down Today</div><div class="metric-value red">{down}</div></div>', unsafe_allow_html=True)
+            with c4:
                 color = "green" if avg >= 0 else "red"
                 st.markdown(f'<div class="metric-card"><div class="metric-label">Avg Move</div><div class="metric-value {color}">{avg:+.2f}%</div></div>', unsafe_allow_html=True)
 
