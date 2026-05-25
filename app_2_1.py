@@ -574,22 +574,47 @@ with tab1:
         st.caption("Auto-refreshes every 60s · prices from Yahoo Finance")
 
         for _, row in df.iterrows():
-            pct   = row["% Change"]
-            color = "#4ade80" if pct >= 0 else "#f87171"
-            arrow = "▲" if pct >= 0 else "▼"
-            st.markdown(f"""
-            <div class="ticker-card">
-                <div>
-                    <span style="color:white;font-size:1.1rem;font-weight:700;">{row['Ticker']}</span>
-                    <span style="color:rgba(255,255,255,0.35);font-size:0.8rem;margin-left:10px;">Vol {row['Vol 3M (M)']}M</span>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:white;font-size:1.2rem;font-weight:700;">${row['Price']:.2f}</span>
-                    <span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>
-                    <span style="color:{color};font-size:0.85rem;margin-left:6px;">({row['Change']:+.2f})</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+    pct    = row["% Change"]
+    color  = "#4ade80" if pct >= 0 else "#f87171"
+    arrow  = "▲" if pct >= 0 else "▼"
+    ticker = row["Ticker"]
+
+    st.markdown(f"""
+    <div class="ticker-card">
+        <div>
+            <span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>
+            <span style="color:rgba(255,255,255,0.35);font-size:0.8rem;margin-left:10px;">Vol {row['Vol 3M (M)']}M</span>
+        </div>
+        <div style="text-align:right;">
+            <span style="color:white;font-size:1.2rem;font-weight:700;">${row['Price']:.2f}</span>
+            <span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>
+            <span style="color:{color};font-size:0.85rem;margin-left:6px;">({row['Change']:+.2f})</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_btn, col_summary = st.columns([1, 4])
+    with col_btn:
+        if st.button(f"✦ Summarize", key=f"sum_{ticker}"):
+            with st.spinner(""):
+                try:
+                    ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
+                    prompt = f"""{ticker} is {arrow} {abs(pct):.2f}% today at ${row['Price']:.2f}, with 3-month avg volume of {row['Vol 3M (M)']}M. Write exactly 2 sentences summarizing how this stock is doing today and what it might mean. Be specific and concise."""
+                    r = requests.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers={"Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01"},
+                        json={"model": "claude-haiku-4-5-20251001", "max_tokens": 120,
+                              "messages": [{"role": "user", "content": prompt}]},
+                        timeout=15
+                    )
+                    summary = r.json()["content"][0]["text"].strip()
+                    st.session_state[f"summary_{ticker}"] = summary
+                except:
+                    st.session_state[f"summary_{ticker}"] = "Could not generate summary — try again."
+
+    with col_summary:
+        if f"summary_{ticker}" in st.session_state:
+            st.markdown(f'<div style="color:#8b949e;font-size:0.85rem;padding:6px 0 10px 0;line-height:1.6;">{st.session_state[f"summary_{ticker}"]}</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="section-title" style="margin-top:28px;">📉 30-Day Chart</div>', unsafe_allow_html=True)
         chart_ticker = st.selectbox("", st.session_state.watchlist, key="chart_sel", label_visibility="collapsed")
