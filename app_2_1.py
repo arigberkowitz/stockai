@@ -162,13 +162,14 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     background: #161b22;
     border: 1px solid #21262d;
     border-radius: 8px;
-    padding: 3px;
-    gap: 2px;
+    padding: 4px 8px;
+    gap: 10px;
 }
 .stTabs [data-baseweb="tab"] {
     border-radius: 6px !important;
     color: #8b949e !important;
     font-weight: 600 !important;
+    padding: 6px 18px !important;
 }
 .stTabs [aria-selected="true"] {
     background: #21262d !important;
