@@ -104,7 +104,7 @@ def fetch_quotes(tickers):
 
 @st.cache_data(ttl=3600)
 def fetch_history(ticker):
-    df = yf.Ticker(ticker).history(period="2y")
+    df = yf.Ticker(ticker).history(period="6mo")
     df.index = pd.to_datetime(df.index).tz_localize(None)
     return df
 
@@ -205,7 +205,8 @@ def run_prediction(ticker):
     hist["MACD_signal"] = hist["MACD"].ewm(span=9, adjust=False).mean()
     hist["MACD_hist"]   = hist["MACD"] - hist["MACD_signal"]
     x      = np.arange(len(closes))
-    coeffs = np.polyfit(x, closes.values, 1)
+    weights = np.exp(np.linspace(0, 1, len(closes)))
+    coeffs = np.polyfit(x, closes.values, 1, w=weights)
     slope, intercept = coeffs
     future_days   = 63
     x_future      = np.arange(len(closes), len(closes) + future_days)
