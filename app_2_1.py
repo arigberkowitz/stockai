@@ -575,18 +575,24 @@ with tab1:
             color  = "#4ade80" if pct >= 0 else "#f87171"
             arrow  = "▲" if pct >= 0 else "▼"
             ticker = row["Ticker"]
-    <div class="ticker-card">
-        <div>
-            <span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>
-            <span style="color:rgba(255,255,255,0.35);font-size:0.8rem;margin-left:10px;">Vol {row['Vol 3M (M)']}M</span>
-        </div>
-        <div style="text-align:right;">
-            <span style="color:white;font-size:1.2rem;font-weight:700;">$ {row['Price']:.2f}</span>
-            <span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>
-            <span style="color:{color};font-size:0.85rem;margin-left:6px;">({row['Change']:+.2f})</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+
+            price = row["Price"]
+            change = row["Change"]
+            vol = row["Vol 3M (M)"]
+            
+            st.markdown(f"""
+            <div class="ticker-card">
+                <div>
+                    <span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>
+                    <span style="color:rgba(255,255,255,0.35);font-size:0.8rem;margin-left:10px;">Vol {vol}M</span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:white;font-size:1.2rem;font-weight:700;">${price:.2f}</span>
+                    <span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>
+                    <span style="color:{color};font-size:0.85rem;margin-left:6px;">({change:+.2f})</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     col_btn, col_summary = st.columns([1, 4])
     with col_btn:
