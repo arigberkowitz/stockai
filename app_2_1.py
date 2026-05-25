@@ -20,170 +20,44 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 #MainMenu, footer, header { visibility: hidden; }
-
 .stApp { background: #0d1117; }
-
-[data-testid="stSidebar"] {
-    background: #161b22 !important;
-    border-right: 1px solid #21262d;
-}
-
-.hero {
-    border-bottom: 1px solid #21262d;
-    padding: 24px 4px 20px 4px;
-    margin-bottom: 24px;
-}
-.hero h1 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #e6edf3;
-    margin: 0;
-    letter-spacing: -0.5px;
-}
+[data-testid="stSidebar"] { background: #161b22 !important; border-right: 1px solid #21262d; }
+.hero { border-bottom: 1px solid #21262d; padding: 24px 4px 20px 4px; margin-bottom: 24px; }
+.hero h1 { font-size: 1.6rem; font-weight: 800; color: #e6edf3; margin: 0; letter-spacing: -0.5px; }
 .hero p { color: #8b949e; font-size: 0.88rem; margin: 4px 0 0 0; }
-
-.metric-card {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 10px;
-    padding: 18px 20px;
-    text-align: center;
-}
-.metric-label {
-    color: #8b949e;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-}
+.metric-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 18px 20px; text-align: center; }
+.metric-label { color: #8b949e; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 .metric-value { color: #e6edf3; font-size: 1.75rem; font-weight: 800; line-height: 1; }
 .metric-value.green { color: #3fb950; }
 .metric-value.red   { color: #f85149; }
-
-.section-title {
-    color: #e6edf3;
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin: 20px 0 10px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.signal-pill {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    margin: 3px 3px 3px 0;
-}
+.section-title { color: #e6edf3; font-size: 0.95rem; font-weight: 700; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.signal-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; margin: 3px 3px 3px 0; }
 .pill-green  { background: #0d2a1a; color: #3fb950; border: 1px solid #1e4d2e; }
 .pill-red    { background: #2d0f0f; color: #f85149; border: 1px solid #5a1e1e; }
 .pill-yellow { background: #2a1f00; color: #d29922; border: 1px solid #4a3800; }
-
-.summary-box {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-left: 3px solid #58a6ff;
-    border-radius: 8px;
-    padding: 16px 20px;
-    color: #c9d1d9;
-    font-size: 0.88rem;
-    line-height: 1.65;
-    margin-top: 16px;
-}
-
-.ai-verdict-buy  { border-left: 3px solid #3fb950 !important; }
-.ai-verdict-sell { border-left: 3px solid #f85149 !important; }
-.ai-verdict-hold { border-left: 3px solid #d29922 !important; }
-
-.fund-card {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 8px;
-}
-.fund-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #21262d;
-}
+.summary-box { background: #161b22; border: 1px solid #21262d; border-left: 3px solid #58a6ff; border-radius: 8px; padding: 16px 20px; color: #c9d1d9; font-size: 0.88rem; line-height: 1.65; margin-top: 16px; }
+.fund-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; }
+.fund-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #21262d; }
 .fund-row:last-child { border-bottom: none; }
 .fund-key { color: #8b949e; font-size: 0.82rem; }
 .fund-val { color: #e6edf3; font-size: 0.88rem; font-weight: 600; }
 .fund-val.green { color: #3fb950; }
 .fund-val.red   { color: #f85149; }
-
-.news-item {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
-}
+.news-item { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px; }
 .news-title { color: #c9d1d9; font-size: 0.88rem; font-weight: 600; }
 .news-meta  { color: #8b949e; font-size: 0.78rem; margin-top: 3px; }
-
-.ticker-card {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+.ticker-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
 .ticker-card:hover { border-color: #388bfd; }
-
 [data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
-
-.stTextInput input, .stNumberInput input {
-    background: #0d1117 !important;
-    border: 1px solid #30363d !important;
-    color: #e6edf3 !important;
-    border-radius: 6px !important;
-}
-
-.stButton > button {
-    background: #21262d !important;
-    color: #e6edf3 !important;
-    border: 1px solid #30363d !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-}
+.stTextInput input, .stNumberInput input { background: #0d1117 !important; border: 1px solid #30363d !important; color: #e6edf3 !important; border-radius: 6px !important; }
+.stButton > button { background: #21262d !important; color: #e6edf3 !important; border: 1px solid #30363d !important; border-radius: 6px !important; font-weight: 600 !important; }
 .stButton > button:hover { border-color: #58a6ff !important; color: #58a6ff !important; }
-
-.stTabs [data-baseweb="tab-list"] {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 4px 8px;
-    gap: 10px;
-}
-.stTabs [data-baseweb="tab"] {
-    border-radius: 6px !important;
-    color: #8b949e !important;
-    font-weight: 600 !important;
-    padding: 6px 18px !important;
-}
-.stTabs [aria-selected="true"] {
-    background: #21262d !important;
-    color: #e6edf3 !important;
-}
-
+.stTabs [data-baseweb="tab-list"] { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 4px 8px; gap: 10px; }
+.stTabs [data-baseweb="tab"] { border-radius: 6px !important; color: #8b949e !important; font-weight: 600 !important; padding: 6px 18px !important; }
+.stTabs [aria-selected="true"] { background: #21262d !important; color: #e6edf3 !important; }
 hr { border-color: #21262d !important; }
 .stCaption, small { color: #8b949e !important; }
-.streamlit-expanderHeader {
-    background: #161b22 !important;
-    border-radius: 6px !important;
-    color: #e6edf3 !important;
-    font-weight: 600 !important;
-}
+.streamlit-expanderHeader { background: #161b22 !important; border-radius: 6px !important; color: #e6edf3 !important; font-weight: 600 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -299,7 +173,6 @@ def fetch_news(ticker):
             title = item.findtext("title", "")
             pub   = item.findtext("pubDate", "")
             link  = item.findtext("link", "")
-            # Clean title (Google News appends source after " - ")
             if " - " in title:
                 parts = title.rsplit(" - ", 1)
                 title = parts[0]
@@ -326,14 +199,11 @@ def run_prediction(ticker):
     hist["BB_mid"]   = closes.rolling(20).mean()
     hist["BB_upper"] = hist["BB_mid"] + 2 * closes.rolling(20).std()
     hist["BB_lower"] = hist["BB_mid"] - 2 * closes.rolling(20).std()
-
-    # MACD
     ema12 = closes.ewm(span=12, adjust=False).mean()
     ema26 = closes.ewm(span=26, adjust=False).mean()
     hist["MACD"]        = ema12 - ema26
     hist["MACD_signal"] = hist["MACD"].ewm(span=9, adjust=False).mean()
     hist["MACD_hist"]   = hist["MACD"] - hist["MACD_signal"]
-
     x      = np.arange(len(closes))
     coeffs = np.polyfit(x, closes.values, 1)
     slope, intercept = coeffs
@@ -353,7 +223,6 @@ def run_prediction(ticker):
     bb_lower  = hist["BB_lower"].iloc[-1]
     macd_val  = hist["MACD"].iloc[-1]
     macd_sig  = hist["MACD_signal"].iloc[-1]
-
     signals = []
     if ma50_val > ma200_val:
         signals.append(("green", "🟢 Golden Cross", "MA50 above MA200 — bullish trend"))
@@ -375,8 +244,6 @@ def run_prediction(ticker):
         signals.append(("green", "🟢 MACD Bullish", f"MACD ({macd_val:.2f}) above signal ({macd_sig:.2f})"))
     else:
         signals.append(("red",   "🔴 MACD Bearish", f"MACD ({macd_val:.2f}) below signal ({macd_sig:.2f})"))
-
-    # Volume trend
     recent_vol = hist["Volume"].iloc[-5:].mean()
     avg_vol    = hist["Volume"].iloc[-30:].mean()
     if recent_vol > avg_vol * 1.3:
@@ -385,7 +252,6 @@ def run_prediction(ticker):
         signals.append(("yellow", "🟡 Low Volume", "Below-average volume — weak conviction"))
     else:
         signals.append(("yellow", "🟡 Normal Volume", "Volume in line with recent average"))
-
     return {
         "hist": hist, "future_dates": future_dates, "future_series": future_series,
         "signals": signals, "rsi": rsi_val, "ma50": ma50_val, "ma200": ma200_val,
@@ -401,15 +267,12 @@ def run_ai_analysis(ticker, tech_result, fundamentals, news):
         ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
         if not ANTHROPIC_KEY:
             return None
-
         signals_text = "\n".join([f"- {label}: {desc}" for _, label, desc in tech_result["signals"]])
         news_text    = "\n".join([f"- {n['title']} ({n['source']})" for n in news[:5]]) if news else "No recent news found."
-
         fund_text = ""
         for k, v in fundamentals.items():
             if k != "_raw":
                 fund_text += f"- {k}: {v}\n"
-
         prompt = f"""You are a professional equity analyst. Analyze {ticker} and give a clear investment verdict.
 
 TECHNICAL SIGNALS:
@@ -425,19 +288,10 @@ FUNDAMENTAL DATA:
 RECENT NEWS HEADLINES:
 {news_text}
 
-Based on ALL of the above (technicals, fundamentals, and news sentiment), provide:
-
-1. VERDICT: BUY, HOLD, or SELL (one word)
-2. CONFIDENCE: High, Medium, or Low
-3. SUMMARY: 3-4 sentences explaining your reasoning, referencing specific data points
-4. BULLS: 3 bullet points — strongest reasons to be bullish
-5. BEARS: 3 bullet points — biggest risks or reasons to be cautious
-6. CATALYSTS: 2 near-term catalysts to watch
-
-Format your response EXACTLY like this:
+Based on ALL of the above, provide:
 VERDICT: [BUY/HOLD/SELL]
 CONFIDENCE: [High/Medium/Low]
-SUMMARY: [text]
+SUMMARY: [3-4 sentences]
 BULLS:
 - [point]
 - [point]
@@ -449,31 +303,21 @@ BEARS:
 CATALYSTS:
 - [point]
 - [point]"""
-
         r = requests.post(
             "https://api.anthropic.com/v1/messages",
-            headers={
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_KEY,
-                "anthropic-version": "2023-06-01"
-            },
-            json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 1000,
-                "messages": [{"role": "user", "content": prompt}]
-            },
+            headers={"Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01"},
+            json={"model": "claude-haiku-4-5-20251001", "max_tokens": 1000,
+                  "messages": [{"role": "user", "content": prompt}]},
             timeout=30
         )
         return r.json()["content"][0]["text"]
-    except Exception as e:
+    except:
         return None
 
 def parse_ai_response(text):
     result = {}
     lines  = text.strip().split("\n")
     current_section = None
-    buffer = []
-
     for line in lines:
         line = line.strip()
         if line.startswith("VERDICT:"):
@@ -496,7 +340,6 @@ def parse_ai_response(text):
             result.setdefault(current_section, []).append(line[2:])
         elif current_section == "summary" and line and not any(line.startswith(s) for s in ["BULLS:", "BEARS:", "CATALYSTS:", "VERDICT:", "CONFIDENCE:"]):
             result["summary"] = result.get("summary", "") + " " + line
-
     return result
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -509,7 +352,6 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     st.divider()
-
     st.markdown("<div style='color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:8px;'>➕ Add Ticker</div>", unsafe_allow_html=True)
     new_ticker = st.text_input("", placeholder="e.g. MSFT", label_visibility="collapsed").strip().upper()
     if st.button("Add to Watchlist", use_container_width=True):
@@ -520,7 +362,6 @@ with st.sidebar:
             st.success(f"✅ {new_ticker} added!")
         elif new_ticker in st.session_state.watchlist:
             st.warning("Already on watchlist.")
-
     st.divider()
     st.markdown("<div style='color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:8px;'>🗑️ Remove Ticker</div>", unsafe_allow_html=True)
     if st.session_state.watchlist:
@@ -530,7 +371,6 @@ with st.sidebar:
             save_json(WATCHLIST_FILE, st.session_state.watchlist)
             st.cache_data.clear()
             st.rerun()
-
     st.divider()
     if st.button("🔄 Refresh Prices", use_container_width=True):
         st.cache_data.clear()
@@ -554,7 +394,7 @@ with tab1:
         df = fetch_quotes(st.session_state.watchlist)
         valid = df[df["Price"] != 0]
 
-       if not valid.empty:
+        if not valid.empty:
             up   = int((valid["% Change"] >= 0).sum())
             down = int((valid["% Change"] < 0).sum())
             avg  = valid["% Change"].mean()
@@ -566,8 +406,8 @@ with tab1:
             with c3:
                 st.markdown(f'<div class="metric-card"><div class="metric-label">▼ Down Today</div><div class="metric-value red">{down}</div></div>', unsafe_allow_html=True)
             with c4:
-                color = "green" if avg >= 0 else "red"
-                st.markdown(f'<div class="metric-card"><div class="metric-label">Avg Move</div><div class="metric-value {color}">{avg:+.2f}%</div></div>', unsafe_allow_html=True)
+                avg_color = "green" if avg >= 0 else "red"
+                st.markdown(f'<div class="metric-card"><div class="metric-label">Avg Move</div><div class="metric-value {avg_color}">{avg:+.2f}%</div></div>', unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
         st.markdown('<div class="section-title">📈 Live Prices</div>', unsafe_allow_html=True)
@@ -578,11 +418,10 @@ with tab1:
             color  = "#4ade80" if pct >= 0 else "#f87171"
             arrow  = "▲" if pct >= 0 else "▼"
             ticker = row["Ticker"]
-
-            price = row["Price"]
+            price  = row["Price"]
             change = row["Change"]
-            vol = row["Vol 3M (M)"]
-            
+            vol    = row["Vol 3M (M)"]
+
             st.markdown(f"""
             <div class="ticker-card">
                 <div>
@@ -597,28 +436,27 @@ with tab1:
             </div>
             """, unsafe_allow_html=True)
 
-    col_btn, col_summary = st.columns([1, 4])
-    with col_btn:
-        if st.button(f"✦ Summarize", key=f"sum_{ticker}"):
-            with st.spinner(""):
-                try:
-                    ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
-                    prompt = f"""{ticker} is {arrow} {abs(pct):.2f}% today at ${row['Price']:.2f}, with 3-month avg volume of {row['Vol 3M (M)']}M. Write exactly 2 sentences summarizing how this stock is doing today and what it might mean. Be specific and concise."""
-                    r = requests.post(
-                        "https://api.anthropic.com/v1/messages",
-                        headers={"Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01"},
-                        json={"model": "claude-haiku-4-5-20251001", "max_tokens": 120,
-                              "messages": [{"role": "user", "content": prompt}]},
-                        timeout=15
-                    )
-                    summary = r.json()["content"][0]["text"].strip()
-                    st.session_state[f"summary_{ticker}"] = summary
-                except:
-                    st.session_state[f"summary_{ticker}"] = "Could not generate summary — try again."
-
-    with col_summary:
-        if f"summary_{ticker}" in st.session_state:
-            st.markdown(f'<div style="color:#8b949e;font-size:0.85rem;padding:6px 0 10px 0;line-height:1.6;">{st.session_state[f"summary_{ticker}"]}</div>', unsafe_allow_html=True)
+            col_btn, col_summary = st.columns([1, 4])
+            with col_btn:
+                if st.button("✦ Summarize", key=f"sum_{ticker}"):
+                    with st.spinner(""):
+                        try:
+                            ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
+                            prompt = f"{ticker} is {arrow} {abs(pct):.2f}% today at ${price:.2f}, with 3-month avg volume of {vol}M. Write exactly 2 sentences summarizing how this stock is doing today and what it might mean. Be specific and concise."
+                            r = requests.post(
+                                "https://api.anthropic.com/v1/messages",
+                                headers={"Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01"},
+                                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 120,
+                                      "messages": [{"role": "user", "content": prompt}]},
+                                timeout=15
+                            )
+                            summary = r.json()["content"][0]["text"].strip()
+                            st.session_state[f"summary_{ticker}"] = summary
+                        except:
+                            st.session_state[f"summary_{ticker}"] = "Could not generate summary — try again."
+            with col_summary:
+                if f"summary_{ticker}" in st.session_state:
+                    st.markdown(f'<div style="color:#8b949e;font-size:0.85rem;padding:6px 0 10px 0;line-height:1.6;">{st.session_state[f"summary_{ticker}"]}</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="section-title" style="margin-top:28px;">📉 30-Day Chart</div>', unsafe_allow_html=True)
         chart_ticker = st.selectbox("", st.session_state.watchlist, key="chart_sel", label_visibility="collapsed")
@@ -748,8 +586,6 @@ with tab3:
                 st.error("Not enough historical data. Try a different ticker.")
             else:
                 st.divider()
-
-                # ── Price metrics ──
                 p1, p2, p3, p4 = st.columns(4)
                 trend_color = "green" if result["trend_pct"] >= 0 else "red"
                 with p1:
@@ -762,7 +598,6 @@ with tab3:
                     rsi_c = "red" if result["rsi"] > 70 else ("green" if result["rsi"] < 30 else "")
                     st.markdown(f'<div class="metric-card"><div class="metric-label">RSI (14-day)</div><div class="metric-value {rsi_c}">{result["rsi"]:.1f}</div></div>', unsafe_allow_html=True)
 
-                # ── Two column layout: Fundamentals + News ──
                 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
                 left_col, right_col = st.columns([1, 1])
 
@@ -774,9 +609,9 @@ with tab3:
                         for k, v in fund_display.items():
                             color_class = ""
                             if k == "Revenue Growth" and v != "N/A":
-                                color_class = "green" if v.startswith("-") is False and v != "0.0%" else "red"
+                                color_class = "green" if not v.startswith("-") and v != "0.0%" else "red"
                             if k == "Analyst Rating":
-                                color_class = "green" if "BUY" in v else ("red" if "SELL" in v else "yellow")
+                                color_class = "green" if "BUY" in v else ("red" if "SELL" in v else "")
                             rows_html += f'<div class="fund-row"><span class="fund-key">{k}</span><span class="fund-val {color_class}">{v}</span></div>'
                         st.markdown(f'<div class="fund-card">{rows_html}</div>', unsafe_allow_html=True)
 
@@ -784,25 +619,16 @@ with tab3:
                     st.markdown('<div class="section-title">📰 Recent News</div>', unsafe_allow_html=True)
                     if news:
                         for n in news:
-                            st.markdown(f"""
-<a href="{n['link']}" target="_blank" style="text-decoration:none;">
-    <div class="news-item" style="cursor:pointer;">
-        <div class="news-title">{n['title']}</div>
-        <div class="news-meta">{n['source']} &nbsp;·&nbsp; {n['pub']}</div>
-    </div>
-</a>
-""", unsafe_allow_html=True)
+                            st.markdown(f'<a href="{n["link"]}" target="_blank" style="text-decoration:none;"><div class="news-item" style="cursor:pointer;"><div class="news-title">{n["title"]}</div><div class="news-meta">{n["source"]} &nbsp;·&nbsp; {n["pub"]}</div></div></a>', unsafe_allow_html=True)
                     else:
                         st.markdown('<div style="color:#8b949e;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
 
-                # ── Technical signals ──
                 st.markdown('<div class="section-title" style="margin-top:24px;">📡 Technical Signals</div>', unsafe_allow_html=True)
                 pills_html = ""
                 for color, label, desc in result["signals"]:
                     pills_html += f'<span class="signal-pill pill-{color}">{label}</span> <span style="color:rgba(255,255,255,0.5);font-size:0.82rem;">{desc}</span><br style="margin-bottom:6px;">'
                 st.markdown(f'<div style="line-height:2.2;">{pills_html}</div>', unsafe_allow_html=True)
 
-                # ── AI Analysis ──
                 st.markdown('<div class="section-title" style="margin-top:24px;">🤖 AI Verdict</div>', unsafe_allow_html=True)
                 with st.spinner("Synthesizing AI analysis..."):
                     ai_raw = run_ai_analysis(pred_ticker, result, fundamentals, news)
@@ -815,10 +641,7 @@ with tab3:
                     bulls      = ai.get("bulls", [])
                     bears      = ai.get("bears", [])
                     catalysts  = ai.get("catalysts", [])
-
                     verdict_color = {"BUY": "#3fb950", "SELL": "#f85149", "HOLD": "#d29922"}.get(verdict, "#58a6ff")
-                    verdict_class = {"BUY": "ai-verdict-buy", "SELL": "ai-verdict-sell", "HOLD": "ai-verdict-hold"}.get(verdict, "")
-
                     st.markdown(f"""
                     <div style='display:flex;align-items:center;gap:16px;margin-bottom:16px;'>
                         <div style='background:#161b22;border:2px solid {verdict_color};border-radius:12px;padding:12px 28px;text-align:center;'>
@@ -828,7 +651,6 @@ with tab3:
                         <div style='color:#c9d1d9;font-size:0.9rem;line-height:1.65;flex:1;'>{summary}</div>
                     </div>
                     """, unsafe_allow_html=True)
-
                     bull_col, bear_col, cat_col = st.columns(3)
                     with bull_col:
                         st.markdown('<div style="color:#3fb950;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🟢 Bull Case</div>', unsafe_allow_html=True)
@@ -845,7 +667,6 @@ with tab3:
                 else:
                     st.warning("AI analysis unavailable — check your ANTHROPIC_KEY in Streamlit secrets.")
 
-                # ── Charts ──
                 st.markdown('<div class="section-title" style="margin-top:28px;">📈 Price History + 3-Month Projection</div>', unsafe_allow_html=True)
                 hist = result["hist"]
                 chart_data = pd.DataFrame({
