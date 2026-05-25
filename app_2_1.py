@@ -568,12 +568,11 @@ with tab1:
             with c4:
                 color = "green" if avg >= 0 else "red"
                 st.markdown(f'<div class="metric-card"><div class="metric-label">Avg Move</div><div class="metric-value {color}">{avg:+.2f}%</div></div>', unsafe_allow_html=True)
-
-        st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
         st.markdown('<div class="section-title">📈 Live Prices</div>', unsafe_allow_html=True)
         st.caption("Auto-refreshes every 60s · prices from Yahoo Finance")
-
         for _, row in df.iterrows():
+            pct    = row["% Change"]
     pct    = row["% Change"]
     color  = "#4ade80" if pct >= 0 else "#f87171"
     arrow  = "▲" if pct >= 0 else "▼"
