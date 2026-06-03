@@ -243,8 +243,8 @@ def make_analysis_chart(result):
 
     # Bollinger Band fill
     bb_x = hist.index.tolist() + hist.index.tolist()[::-1]
-    bb_y = (hist["BB_upper"].fillna(method="ffill").tolist() +
-            hist["BB_lower"].fillna(method="ffill").tolist()[::-1])
+    bb_y = (hist["BB_upper"].ffill().tolist() +
+            hist["BB_lower"].ffill().tolist()[::-1])
     fig.add_trace(go.Scatter(
         x=bb_x, y=bb_y, fill="toself",
         fillcolor="rgba(88,166,255,0.07)",
@@ -600,34 +600,27 @@ with tab1:
             # 52W range bar
             if yr_hi > yr_lo > 0:
                 pct_range = min(max((price - yr_lo) / (yr_hi - yr_lo) * 100, 0), 100)
-                range_html = f"""
-                <div style="margin-top:6px;">
-                  <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.3);font-size:0.7rem;margin-bottom:3px;">
-                    <span>${yr_lo:.0f}</span><span style="letter-spacing:0.5px;">52W RANGE</span><span>${yr_hi:.0f}</span>
-                  </div>
-                  <div style="background:#21262d;border-radius:3px;height:3px;">
-                    <div style="background:#58a6ff;width:{pct_range:.0f}%;height:100%;border-radius:3px;"></div>
-                  </div>
-                </div>"""
+                range_html = (f'<div style="margin-top:6px;">'
+                    f'<div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.3);font-size:0.7rem;margin-bottom:3px;">'
+                    f'<span>${yr_lo:.0f}</span><span style="letter-spacing:0.5px;">52W RANGE</span><span>${yr_hi:.0f}</span>'
+                    f'</div>'
+                    f'<div style="background:#21262d;border-radius:3px;height:3px;">'
+                    f'<div style="background:#58a6ff;width:{pct_range:.0f}%;height:100%;border-radius:3px;"></div>'
+                    f'</div>'
+                    f'</div>')
             else:
                 range_html = ""
 
-            st.markdown(f"""
-            <div class="ticker-card">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                  <span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>
-                  <span style="color:rgba(255,255,255,0.3);font-size:0.78rem;margin-left:10px;">Vol {vol}M</span>
-                </div>
-                <div style="text-align:right;">
-                  <span style="color:white;font-size:1.2rem;font-weight:700;">${price:.2f}</span>
-                  <span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>
-                  <span style="color:{color};font-size:0.85rem;margin-left:6px;">({change:+.2f})</span>
-                </div>
-              </div>
-              {range_html}
-            </div>
-            """, unsafe_allow_html=True)
+            card_html = (f'<div class="ticker-card">'
+                f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+                f'<div><span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>'
+                f'<span style="color:rgba(255,255,255,0.3);font-size:0.78rem;margin-left:10px;">Vol {vol}M</span></div>'
+                f'<div style="text-align:right;">'
+                f'<span style="color:white;font-size:1.2rem;font-weight:700;">${price:.2f}</span>'
+                f'<span style="color:{color};font-size:0.95rem;font-weight:600;margin-left:12px;">{arrow} {abs(pct):.2f}%</span>'
+                f'<span style="color:{color};font-size:0.85rem;margin-left:6px;">({change:+.2f})</span>'
+                f'</div></div>{range_html}</div>')
+            st.markdown(card_html, unsafe_allow_html=True)
 
             col_sum, col_analyze, col_space = st.columns([1, 1, 3])
             with col_sum:
@@ -903,7 +896,7 @@ with tab3:
                     <div style='display:flex;align-items:center;gap:16px;margin-bottom:16px;'>
                       <div style='background:#161b22;border:2px solid {verdict_color};border-radius:12px;
                                   padding:12px 28px;text-align:center;min-width:100px;'>
-                        <div style='color:{verdict_color};font-size:1.8rem;font-weight:800;'>{verdict}</div>
+                        <div style='color:{verdict_color};font-size:1.8rem;font-weight:800;">{verdict}</div>
                         <div style='color:#8b949e;font-size:0.75rem;margin-top:2px;'>{confidence} Confidence</div>
                       </div>
                       <div style='color:#c9d1d9;font-size:0.9rem;line-height:1.65;flex:1;'>{summary}</div>
