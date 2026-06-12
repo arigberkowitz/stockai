@@ -22,47 +22,47 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 #MainMenu, footer, header { visibility: hidden; }
-.stApp { background: #0d1117; }
-[data-testid="stSidebar"] { background: #161b22 !important; border-right: 1px solid #21262d; }
-.hero { border-bottom: 1px solid #21262d; padding: 24px 4px 20px 4px; margin-bottom: 24px; }
-.hero h1 { font-size: 1.6rem; font-weight: 800; color: #e6edf3; margin: 0; letter-spacing: -0.5px; }
-.hero p  { color: #8b949e; font-size: 0.88rem; margin: 4px 0 0 0; }
-.metric-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 18px 20px; text-align: center; }
-.metric-label { color: #8b949e; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.metric-value { color: #e6edf3; font-size: 1.75rem; font-weight: 800; line-height: 1; }
-.metric-value.green { color: #3fb950; }
-.metric-value.red   { color: #f85149; }
-.section-title { color: #e6edf3; font-size: 0.95rem; font-weight: 700; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.stApp { background: #0d0b1a; }
+[data-testid="stSidebar"] { background: #17132b !important; border-right: 1px solid #221c3a; }
+.hero { border-bottom: 1px solid #221c3a; padding: 30px 4px 24px 4px; margin-bottom: 26px; }
+.hero h1 { font-size: 2.2rem; font-weight: 800; color: #f5f3ff; margin: 0; letter-spacing: -1px; }
+.hero p  { color: #a29db8; font-size: 0.95rem; margin: 8px 0 0 0; max-width: 600px; line-height: 1.55; }
+.metric-card { background: #17132b; border: 1px solid #221c3a; border-radius: 10px; padding: 18px 20px; text-align: center; }
+.metric-label { color: #a29db8; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.metric-value { color: #f5f3ff; font-size: 1.95rem; font-weight: 800; line-height: 1; }
+.metric-value.green { color: #34d27b; }
+.metric-value.red   { color: #f0584a; }
+.section-title { color: #f5f3ff; font-size: 0.95rem; font-weight: 700; margin: 22px 0 12px 0; text-transform: uppercase; letter-spacing: 0.6px; border-left: 3px solid #8b5cf6; border-radius: 0; padding-left: 11px; }
 .signal-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; margin: 3px 3px 3px 0; }
-.pill-green  { background: #0d2a1a; color: #3fb950; border: 1px solid #1e4d2e; }
-.pill-red    { background: #2d0f0f; color: #f85149; border: 1px solid #5a1e1e; }
-.pill-yellow { background: #2a1f00; color: #d29922; border: 1px solid #4a3800; }
-.summary-box { background: #161b22; border: 1px solid #21262d; border-left: 3px solid #58a6ff; border-radius: 8px; padding: 16px 20px; color: #c9d1d9; font-size: 0.88rem; line-height: 1.65; margin-top: 16px; }
-.fund-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; }
-.fund-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #21262d; }
+.pill-green  { background: rgba(52,210,123,0.12); color: #34d27b; border: 1px solid rgba(52,210,123,0.35); }
+.pill-red    { background: rgba(240,88,74,0.12); color: #f0584a; border: 1px solid rgba(240,88,74,0.35); }
+.pill-yellow { background: rgba(240,180,41,0.12); color: #f0b429; border: 1px solid rgba(240,180,41,0.35); }
+.summary-box { background: #17132b; border: 1px solid #221c3a; border-left: 3px solid #8b5cf6; border-radius: 8px; padding: 16px 20px; color: #d8d2ee; font-size: 0.88rem; line-height: 1.65; margin-top: 16px; }
+.fund-card { background: #17132b; border: 1px solid #221c3a; border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; }
+.fund-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #221c3a; }
 .fund-row:last-child { border-bottom: none; }
-.fund-key { color: #8b949e; font-size: 0.82rem; }
-.fund-val { color: #e6edf3; font-size: 0.88rem; font-weight: 600; }
-.fund-val.green { color: #3fb950; }
-.fund-val.red   { color: #f85149; }
-.news-item { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px; }
-.news-title { color: #c9d1d9; font-size: 0.88rem; font-weight: 600; }
-.news-meta  { color: #8b949e; font-size: 0.78rem; margin-top: 3px; }
-.ticker-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 14px 16px; margin-bottom: 6px; }
-.ticker-card:hover { border-color: #388bfd; }
+.fund-key { color: #a29db8; font-size: 0.82rem; }
+.fund-val { color: #f5f3ff; font-size: 0.88rem; font-weight: 600; }
+.fund-val.green { color: #34d27b; }
+.fund-val.red   { color: #f0584a; }
+.news-item { background: #17132b; border: 1px solid #221c3a; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px; }
+.news-title { color: #d8d2ee; font-size: 0.88rem; font-weight: 600; }
+.news-meta  { color: #a29db8; font-size: 0.78rem; margin-top: 3px; }
+.ticker-card { background: #17132b; border: 1px solid #221c3a; border-radius: 8px; padding: 14px 16px; margin-bottom: 6px; }
+.ticker-card:hover { border-color: #8b5cf6; }
 [data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
-.stTextInput input, .stNumberInput input { background: #0d1117 !important; border: 1px solid #30363d !important; color: #e6edf3 !important; border-radius: 6px !important; }
-.stButton > button { background: #21262d !important; color: #e6edf3 !important; border: 1px solid #30363d !important; border-radius: 6px !important; font-weight: 600 !important; }
-.stButton > button:hover { border-color: #58a6ff !important; color: #58a6ff !important; }
-.stTabs [data-baseweb="tab-list"] { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 4px 8px; gap: 10px; }
-.stTabs [data-baseweb="tab"] { border-radius: 6px !important; color: #8b949e !important; font-weight: 600 !important; padding: 6px 18px !important; }
-.stTabs [aria-selected="true"] { background: #21262d !important; color: #e6edf3 !important; }
-hr { border-color: #21262d !important; }
-.stCaption, small { color: #8b949e !important; }
-.streamlit-expanderHeader { background: #161b22 !important; border-radius: 6px !important; color: #e6edf3 !important; font-weight: 600 !important; }
+.stTextInput input, .stNumberInput input { background: #0d0b1a !important; border: 1px solid #2a2440 !important; color: #f5f3ff !important; border-radius: 6px !important; }
+.stButton > button { background: #221c3a !important; color: #f5f3ff !important; border: 1px solid #2a2440 !important; border-radius: 6px !important; font-weight: 600 !important; }
+.stButton > button:hover { border-color: #8b5cf6 !important; color: #8b5cf6 !important; background: #1f1937 !important; }
+.stTabs [data-baseweb="tab-list"] { background: #17132b; border: 1px solid #221c3a; border-radius: 8px; padding: 4px 8px; gap: 10px; }
+.stTabs [data-baseweb="tab"] { border-radius: 6px !important; color: #a29db8 !important; font-weight: 600 !important; padding: 6px 18px !important; }
+.stTabs [aria-selected="true"] { background: #241d3e !important; color: #f5f3ff !important; box-shadow: inset 0 -2px 0 #8b5cf6; }
+hr { border-color: #221c3a !important; }
+.stCaption, small { color: #a29db8 !important; }
+.streamlit-expanderHeader { background: #17132b !important; border-radius: 6px !important; color: #f5f3ff !important; font-weight: 600 !important; }
 .stRadio > div { flex-direction: row !important; gap: 4px; }
-.stRadio label { background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 4px 14px !important; font-size: 0.82rem !important; color: #8b949e !important; cursor: pointer; }
-.stRadio label:has(input:checked) { border-color: #58a6ff !important; color: #58a6ff !important; }
+.stRadio label { background: #17132b; border: 1px solid #221c3a; border-radius: 6px; padding: 4px 14px !important; font-size: 0.82rem !important; color: #a29db8 !important; cursor: pointer; }
+.stRadio label:has(input:checked) { border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -192,8 +192,8 @@ def fetch_news(ticker):
 # ── Chart helpers ─────────────────────────────────────────────────────────────
 _CHART_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="#161b22",
-    font=dict(color="#8b949e", size=11),
+    plot_bgcolor="#17132b",
+    font=dict(color="#a29db8", size=11),
     xaxis_rangeslider_visible=False,
     margin=dict(l=0, r=0, t=30, b=0),
 )
@@ -208,8 +208,8 @@ def _apply_style(fig, height=360, legend=False):
             bgcolor="rgba(0,0,0,0)", font=dict(size=10),
         ) if legend else {},
     )
-    fig.update_xaxes(gridcolor="#21262d", showgrid=True, zeroline=False)
-    fig.update_yaxes(gridcolor="#21262d", showgrid=True, zeroline=False)
+    fig.update_xaxes(gridcolor="#221c3a", showgrid=True, zeroline=False)
+    fig.update_yaxes(gridcolor="#221c3a", showgrid=True, zeroline=False)
 
 def make_ohlcv_chart(df, ticker):
     """Candlestick + volume bars."""
@@ -220,10 +220,10 @@ def make_ohlcv_chart(df, ticker):
         open=df["Open"], high=df["High"],
         low=df["Low"],   close=df["Close"],
         name=ticker,
-        increasing=dict(line=dict(color="#3fb950"), fillcolor="#3fb950"),
-        decreasing=dict(line=dict(color="#f85149"), fillcolor="#f85149"),
+        increasing=dict(line=dict(color="#34d27b"), fillcolor="#34d27b"),
+        decreasing=dict(line=dict(color="#f0584a"), fillcolor="#f0584a"),
     ), row=1, col=1)
-    vol_colors = ["#3fb950" if c >= o else "#f85149"
+    vol_colors = ["#34d27b" if c >= o else "#f0584a"
                   for o, c in zip(df["Open"], df["Close"])]
     fig.add_trace(go.Bar(
         x=df.index, y=df["Volume"],
@@ -247,18 +247,18 @@ def make_analysis_chart(result):
             hist["BB_lower"].ffill().tolist()[::-1])
     fig.add_trace(go.Scatter(
         x=bb_x, y=bb_y, fill="toself",
-        fillcolor="rgba(88,166,255,0.07)",
+        fillcolor="rgba(139,92,246,0.10)",
         line=dict(color="rgba(0,0,0,0)"),
         name="Bollinger Bands", showlegend=True,
     ), row=1, col=1)
 
     fig.add_trace(go.Scatter(
         x=hist.index, y=hist["MA50"],
-        name="MA50", line=dict(color="#d29922", width=1.4),
+        name="MA50", line=dict(color="#f0b429", width=1.4),
     ), row=1, col=1)
     fig.add_trace(go.Scatter(
         x=hist.index, y=hist["MA200"],
-        name="MA200", line=dict(color="#58a6ff", width=1.4),
+        name="MA200", line=dict(color="#8b5cf6", width=1.4),
     ), row=1, col=1)
 
     fig.add_trace(go.Candlestick(
@@ -266,8 +266,8 @@ def make_analysis_chart(result):
         open=hist["Open"], high=hist["High"],
         low=hist["Low"],   close=hist["Close"],
         name="Price",
-        increasing=dict(line=dict(color="#3fb950"), fillcolor="#3fb950"),
-        decreasing=dict(line=dict(color="#f85149"), fillcolor="#f85149"),
+        increasing=dict(line=dict(color="#34d27b"), fillcolor="#34d27b"),
+        decreasing=dict(line=dict(color="#f0584a"), fillcolor="#f0584a"),
     ), row=1, col=1)
 
     # 3-month projection (dashed purple)
@@ -276,11 +276,11 @@ def make_analysis_chart(result):
     fig.add_trace(go.Scatter(
         x=proj_x, y=proj_y,
         name="3M Projection",
-        line=dict(color="#a371f7", dash="dash", width=2),
+        line=dict(color="#22d3ee", dash="dash", width=2),
     ), row=1, col=1)
 
     # Volume bars
-    vol_colors = ["#3fb950" if c >= o else "#f85149"
+    vol_colors = ["#34d27b" if c >= o else "#f0584a"
                   for o, c in zip(hist["Open"], hist["Close"])]
     fig.add_trace(go.Bar(
         x=hist.index, y=hist["Volume"],
@@ -295,14 +295,14 @@ def make_analysis_chart(result):
 def make_rsi_chart(rsi_series):
     fig = go.Figure()
     # Shaded zones
-    fig.add_hrect(y0=70, y1=100, fillcolor="rgba(248,81,73,0.07)",  line_width=0)
-    fig.add_hrect(y0=0,  y1=30,  fillcolor="rgba(63,185,80,0.07)",  line_width=0)
-    fig.add_hline(y=70, line=dict(color="#f85149", dash="dot", width=1))
-    fig.add_hline(y=30, line=dict(color="#3fb950", dash="dot", width=1))
-    fig.add_hline(y=50, line=dict(color="#8b949e", dash="dot", width=0.7))
+    fig.add_hrect(y0=70, y1=100, fillcolor="rgba(240,88,74,0.08)",  line_width=0)
+    fig.add_hrect(y0=0,  y1=30,  fillcolor="rgba(52,210,123,0.08)",  line_width=0)
+    fig.add_hline(y=70, line=dict(color="#f0584a", dash="dot", width=1))
+    fig.add_hline(y=30, line=dict(color="#34d27b", dash="dot", width=1))
+    fig.add_hline(y=50, line=dict(color="#a29db8", dash="dot", width=0.7))
     fig.add_trace(go.Scatter(
         x=rsi_series.index, y=rsi_series.values,
-        name="RSI", line=dict(color="#58a6ff", width=1.8),
+        name="RSI", line=dict(color="#8b5cf6", width=1.8),
     ))
     fig.update_layout(yaxis=dict(range=[0, 100]))
     _apply_style(fig, height=210)
@@ -311,18 +311,18 @@ def make_rsi_chart(rsi_series):
 def make_macd_chart(hist):
     macd_df = hist[["MACD", "MACD_signal", "MACD_hist"]].dropna()
     fig = go.Figure()
-    hist_colors = ["#3fb950" if v >= 0 else "#f85149" for v in macd_df["MACD_hist"]]
+    hist_colors = ["#34d27b" if v >= 0 else "#f0584a" for v in macd_df["MACD_hist"]]
     fig.add_trace(go.Bar(
         x=macd_df.index, y=macd_df["MACD_hist"],
         name="Histogram", marker_color=hist_colors, opacity=0.75,
     ))
     fig.add_trace(go.Scatter(
         x=macd_df.index, y=macd_df["MACD"],
-        name="MACD", line=dict(color="#58a6ff", width=1.8),
+        name="MACD", line=dict(color="#8b5cf6", width=1.8),
     ))
     fig.add_trace(go.Scatter(
         x=macd_df.index, y=macd_df["MACD_signal"],
-        name="Signal", line=dict(color="#d29922", width=1.8),
+        name="Signal", line=dict(color="#f0b429", width=1.8),
     ))
     _apply_style(fig, height=210, legend=True)
     return fig
@@ -337,11 +337,11 @@ def make_pnl_chart(trades_df):
         return None
     closed["Cumulative P&L"] = closed["P&L ($)"].cumsum()
     final = closed["Cumulative P&L"].iloc[-1]
-    fill_color = "rgba(63,185,80,0.12)" if final >= 0 else "rgba(248,81,73,0.12)"
-    line_color  = "#3fb950"             if final >= 0 else "#f85149"
+    fill_color = "rgba(52,210,123,0.14)" if final >= 0 else "rgba(240,88,74,0.14)"
+    line_color  = "#34d27b"             if final >= 0 else "#f0584a"
 
     fig = go.Figure()
-    fig.add_hline(y=0, line=dict(color="#8b949e", dash="dot", width=1))
+    fig.add_hline(y=0, line=dict(color="#a29db8", dash="dot", width=1))
     fig.add_trace(go.Scatter(
         x=closed["date"], y=closed["Cumulative P&L"],
         name="Cumulative P&L",
@@ -519,7 +519,7 @@ def parse_ai_response(text):
 with st.sidebar:
     st.markdown("""
     <div style='padding: 20px 0 10px 0;'>
-      <span style='font-size:2rem;'>⚡</span>
+      <span style='font-size:2rem;color:#8b5cf6;'>⚡</span>
       <span style='color:white;font-size:1.4rem;font-weight:800;margin-left:8px;'>StockIQ</span>
       <div style='color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:4px;'>Your trading dashboard</div>
     </div>
@@ -552,8 +552,8 @@ with st.sidebar:
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
-  <h1>⚡ StockIQ</h1>
-  <p>Live prices &nbsp;·&nbsp; Trade log &nbsp;·&nbsp; 3-month predictions &nbsp;·&nbsp; AI analysis</p>
+  <h1><span style="color:#8b5cf6;">⚡</span> StockIQ</h1>
+  <p>Know the case for and against — before you buy. Live prices, technicals, and an AI verdict on any stock.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -588,7 +588,7 @@ with tab1:
 
         for _, row in df.iterrows():
             pct    = row["% Change"]
-            color  = "#4ade80" if pct >= 0 else "#f87171"
+            color  = "#34d27b" if pct >= 0 else "#f0584a"
             arrow  = "▲" if pct >= 0 else "▼"
             ticker = row["Ticker"]
             price  = row["Price"]
@@ -604,8 +604,8 @@ with tab1:
                     f'<div style="display:flex;justify-content:space-between;color:rgba(255,255,255,0.3);font-size:0.7rem;margin-bottom:3px;">'
                     f'<span>${yr_lo:.0f}</span><span style="letter-spacing:0.5px;">52W RANGE</span><span>${yr_hi:.0f}</span>'
                     f'</div>'
-                    f'<div style="background:#21262d;border-radius:3px;height:3px;">'
-                    f'<div style="background:#58a6ff;width:{pct_range:.0f}%;height:100%;border-radius:3px;"></div>'
+                    f'<div style="background:#221c3a;border-radius:3px;height:3px;">'
+                    f'<div style="background:#8b5cf6;width:{pct_range:.0f}%;height:100%;border-radius:3px;"></div>'
                     f'</div>'
                     f'</div>')
             else:
@@ -651,7 +651,7 @@ with tab1:
 
             if f"summary_{ticker}" in st.session_state:
                 st.markdown(
-                    f'<div style="color:#8b949e;font-size:0.85rem;padding:4px 0 10px 0;line-height:1.6;">'
+                    f'<div style="color:#a29db8;font-size:0.85rem;padding:4px 0 10px 0;line-height:1.6;">'
                     f'{st.session_state[f"summary_{ticker}"]}</div>',
                     unsafe_allow_html=True,
                 )
@@ -755,7 +755,7 @@ with tab2:
 
         def color_pnl(val):
             if isinstance(val, (int, float)):
-                return f"color: {'#4ade80' if val >= 0 else '#f87171'}; font-weight: 700"
+                return f"color: {'#34d27b' if val >= 0 else '#f0584a'}; font-weight: 700"
             return ""
 
         styled_trades = (
@@ -869,7 +869,7 @@ with tab3:
                                 unsafe_allow_html=True,
                             )
                     else:
-                        st.markdown('<div style="color:#8b949e;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
+                        st.markdown('<div style="color:#a29db8;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
 
                 # Technical signals
                 st.markdown('<div class="section-title" style="margin-top:24px;">📡 Technical Signals</div>', unsafe_allow_html=True)
@@ -891,30 +891,30 @@ with tab3:
                     bulls      = ai.get("bulls",      [])
                     bears      = ai.get("bears",      [])
                     catalysts  = ai.get("catalysts",  [])
-                    verdict_color = {"BUY": "#3fb950", "SELL": "#f85149", "HOLD": "#d29922"}.get(verdict, "#58a6ff")
+                    verdict_color = {"BUY": "#34d27b", "SELL": "#f0584a", "HOLD": "#f0b429"}.get(verdict, "#8b5cf6")
                     st.markdown(f"""
                     <div style='display:flex;align-items:center;gap:16px;margin-bottom:16px;'>
-                      <div style='background:#161b22;border:2px solid {verdict_color};border-radius:12px;
+                      <div style='background:#17132b;border:2px solid {verdict_color};border-radius:12px;
                                   padding:12px 28px;text-align:center;min-width:100px;'>
                         <div style='color:{verdict_color};font-size:1.8rem;font-weight:800;">{verdict}</div>
-                        <div style='color:#8b949e;font-size:0.75rem;margin-top:2px;'>{confidence} Confidence</div>
+                        <div style='color:#a29db8;font-size:0.75rem;margin-top:2px;'>{confidence} Confidence</div>
                       </div>
-                      <div style='color:#c9d1d9;font-size:0.9rem;line-height:1.65;flex:1;'>{summary}</div>
+                      <div style='color:#d8d2ee;font-size:0.9rem;line-height:1.65;flex:1;'>{summary}</div>
                     </div>
                     """, unsafe_allow_html=True)
                     bull_col, bear_col, cat_col = st.columns(3)
                     with bull_col:
-                        st.markdown('<div style="color:#3fb950;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🟢 Bull Case</div>', unsafe_allow_html=True)
+                        st.markdown('<div style="color:#34d27b;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🟢 Bull Case</div>', unsafe_allow_html=True)
                         for pt in bulls:
-                            st.markdown(f'<div style="color:#c9d1d9;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #21262d;">• {pt}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
                     with bear_col:
-                        st.markdown('<div style="color:#f85149;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🔴 Bear Case</div>', unsafe_allow_html=True)
+                        st.markdown('<div style="color:#f0584a;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🔴 Bear Case</div>', unsafe_allow_html=True)
                         for pt in bears:
-                            st.markdown(f'<div style="color:#c9d1d9;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #21262d;">• {pt}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
                     with cat_col:
-                        st.markdown('<div style="color:#d29922;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚡ Catalysts</div>', unsafe_allow_html=True)
+                        st.markdown('<div style="color:#f0b429;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚡ Catalysts</div>', unsafe_allow_html=True)
                         for pt in catalysts:
-                            st.markdown(f'<div style="color:#c9d1d9;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #21262d;">• {pt}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
                 else:
                     st.warning("AI analysis unavailable — check your ANTHROPIC_KEY in Streamlit secrets.")
 
