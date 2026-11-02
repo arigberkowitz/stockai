@@ -1,0 +1,5 @@
+.streamlit/secrets.toml
+watchlist.json
+trades.json
+__pycache__/
+.venv/
