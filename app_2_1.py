@@ -21,7 +21,8 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, footer { visibility: hidden; }
+[data-testid="stHeader"] { background: transparent; }
 .stApp { background: #0d0b1a; }
 [data-testid="stSidebar"] { background: #17132b !important; border-right: 1px solid #221c3a; }
 .hero { border-bottom: 1px solid #221c3a; padding: 30px 4px 24px 4px; margin-bottom: 26px; }
@@ -63,6 +64,17 @@ hr { border-color: #221c3a !important; }
 .stRadio > div { flex-direction: row !important; gap: 4px; }
 .stRadio label { background: #17132b; border: 1px solid #221c3a; border-radius: 6px; padding: 4px 14px !important; font-size: 0.82rem !important; color: #a29db8 !important; cursor: pointer; }
 .stRadio label:has(input:checked) { border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
+.verdict-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 640px) {
+  .hero { padding: 8px 2px 16px 2px; margin-bottom: 16px; }
+  .hero h1 { font-size: 1.7rem; }
+  .metric-card { padding: 12px 10px; }
+  .metric-value { font-size: 1.45rem; }
+  .verdict-row { flex-direction: column; align-items: stretch; }
+  .stTabs [data-baseweb="tab"] { padding: 6px 10px !important; }
+  [data-testid="stHorizontalBlock"]:has(.metric-card) { flex-wrap: wrap !important; gap: 8px !important; }
+  [data-testid="stHorizontalBlock"]:has(.metric-card) > [data-testid="stColumn"] { flex: 1 1 calc(50% - 8px) !important; min-width: calc(50% - 8px) !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -78,10 +90,35 @@ def save_json(path, data):
         json.dump(data, f, indent=2)
 
 # ── Session state ─────────────────────────────────────────────────────────────
+# On Streamlit Cloud every visitor shares one server, so a JSON file on disk would
+# let strangers see/edit each other's watchlists and trades (and it is wiped on every
+# reboot anyway). Locally (no PERSIST=0) the files still work as before.
+PERSIST = os.environ.get("STOCKIQ_PERSIST", "1") == "1" and not os.environ.get("STREAMLIT_SHARING_MODE") \
+          and not os.path.exists("/mount/src")
+def save_json(path, data):  # noqa: F811 (overrides the version above)
+    if PERSIST:
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+
 if "watchlist" not in st.session_state:
-    st.session_state.watchlist = load_json(WATCHLIST_FILE, ["AAPL", "TSLA", "NVDA", "SPY"])
+    st.session_state.watchlist = load_json(WATCHLIST_FILE, ["AAPL", "TSLA", "NVDA", "SPY"]) if PERSIST \
+                                 else ["AAPL", "TSLA", "NVDA", "SPY"]
 if "trades" not in st.session_state:
-    st.session_state.trades = load_json(TRADES_FILE, [])
+    st.session_state.trades = load_json(TRADES_FILE, []) if PERSIST else []
+
+def get_secret(name):
+    """Read a Streamlit secret without crashing when no secrets file exists."""
+    try:
+        return st.secrets.get(name, "") or os.environ.get(name, "")
+    except Exception:
+        return os.environ.get(name, "")
+
+ANTHROPIC_KEY = get_secret("ANTHROPIC_KEY")
+AI_MODEL = "claude-haiku-4-5-20251001"
+
+def is_valid_ticker_text(t):
+    import re
+    return bool(re.fullmatch(r"[A-Z0-9.\-^=]{1,12}", t or ""))
 
 # ── Data fetching ─────────────────────────────────────────────────────────────
 @st.cache_data(ttl=60)
@@ -107,7 +144,7 @@ def fetch_quotes(tickers):
                 "52W High":   round(yr_hi, 2),
                 "52W Low":    round(yr_lo, 2),
             })
-        except:
+        except Exception:
             rows.append({"Ticker": t.upper(), "Price": 0, "Change": 0,
                          "% Change": 0, "Vol 3M (M)": 0,
                          "52W High": 0, "52W Low": 0})
@@ -115,9 +152,21 @@ def fetch_quotes(tickers):
 
 @st.cache_data(ttl=3600)
 def fetch_history(ticker, period="6mo"):
-    df = yf.Ticker(ticker).history(period=period)
+    try:
+        df = yf.Ticker(ticker).history(period=period)
+    except Exception:
+        return pd.DataFrame()
+    if df is None or df.empty:
+        return pd.DataFrame()
     df.index = pd.to_datetime(df.index).tz_localize(None)
     return df
+
+@st.cache_data(ttl=300)
+def fetch_last_price(ticker):
+    try:
+        return float(yf.Ticker(ticker).fast_info.last_price or 0)
+    except Exception:
+        return 0.0
 
 @st.cache_data(ttl=3600)
 def fetch_fundamentals(ticker):
@@ -138,7 +187,7 @@ def fetch_fundamentals(ticker):
         de    = info.get("debtToEquity"); mkt = info.get("marketCap")
         sector   = info.get("sector",   "N/A")
         industry = info.get("industry", "N/A")
-        rec    = info.get("recommendationKey", "N/A").upper()
+        rec    = (info.get("recommendationKey") or "N/A").upper()
         target = info.get("targetMeanPrice")
         analysts = info.get("numberOfAnalystOpinions", 0)
         div_y = info.get("dividendYield"); beta = info.get("beta")
@@ -186,7 +235,7 @@ def fetch_news(ticker):
                 source = ""
             news.append({"title": title, "pub": pub[:22], "source": source, "link": link})
         return news
-    except:
+    except Exception:
         return []
 
 # ── Chart helpers ─────────────────────────────────────────────────────────────
@@ -353,13 +402,48 @@ def make_pnl_chart(trades_df):
     return fig
 
 # ── Technical analysis ────────────────────────────────────────────────────────
-def run_prediction(ticker):
-    hist = fetch_history(ticker, "12mo")   # more history for MA200
-    if hist.empty or len(hist) < 60:
+def _trend_line(values, horizon):
+    """Exponentially weighted linear fit (recent days count more), projected `horizon` days out."""
+    x = np.arange(len(values))
+    weights = np.exp(np.linspace(0, 1, len(values)))
+    coeffs = np.polyfit(x, values, 1, w=weights)
+    return coeffs, coeffs[0] * (len(values) - 1 + horizon) + coeffs[1]
+
+@st.cache_data(ttl=3600)
+def backtest_trend(ticker, window=252, horizon=63, step=21):
+    """Walk-forward test of the exact same projection method on ~5 years of history:
+    every month, fit on the prior year only, call the 3-month direction, then check
+    what actually happened. No look-ahead."""
+    full = fetch_history(ticker, "5y")
+    if full.empty or len(full) < window + horizon + step * 6:
         return None
+    c = full["Close"].values
+    calls = []
+    for i in range(window, len(c) - horizon, step):
+        _, proj = _trend_line(c[i - window:i], horizon)
+        now, later = c[i - 1], c[i - 1 + horizon]
+        calls.append((proj > now, later > now, (proj - now) / now, (later - now) / now))
+    if not calls:
+        return None
+    pred_up = np.array([x[0] for x in calls]); act_up = np.array([x[1] for x in calls])
+    pred_pct = np.array([x[2] for x in calls]); act_pct = np.array([x[3] for x in calls])
+    return {
+        "n": len(calls),
+        "hit_rate": float((pred_up == act_up).mean() * 100),
+        "always_up": float(act_up.mean() * 100),   # naive baseline: "it always goes up"
+        "mae": float(np.abs(pred_pct - act_pct).mean() * 100),
+        "start": full.index[window].strftime("%b %Y"),
+    }
+
+def run_prediction(ticker):
+    full = fetch_history(ticker, "2y")     # 2y so MA200 is filled on the visible year
+    if full.empty or len(full) < 60:
+        return None
+    closes_full = full["Close"].copy()
+    full["MA50"]  = closes_full.rolling(50).mean()
+    full["MA200"] = closes_full.rolling(200).mean()
+    hist = full.iloc[-252:].copy()         # show / fit the last 12 months, like before
     closes = hist["Close"].copy()
-    hist["MA50"]  = closes.rolling(50).mean()
-    hist["MA200"] = closes.rolling(200).mean()
     delta = closes.diff()
     gain  = delta.clip(lower=0).rolling(14).mean()
     loss  = (-delta.clip(upper=0)).rolling(14).mean()
@@ -374,11 +458,9 @@ def run_prediction(ticker):
     hist["MACD_signal"] = hist["MACD"].ewm(span=9, adjust=False).mean()
     hist["MACD_hist"]   = hist["MACD"] - hist["MACD_signal"]
 
-    x = np.arange(len(closes))
-    weights = np.exp(np.linspace(0, 1, len(closes)))
-    coeffs  = np.polyfit(x, closes.values, 1, w=weights)
-    slope, _ = coeffs
     future_days = 63
+    coeffs, _ = _trend_line(closes.values, future_days)
+    slope, _ = coeffs
     x_future    = np.arange(len(closes), len(closes) + future_days)
     y_future    = coeffs[0] * x_future + coeffs[1]
     last_date    = hist.index[-1]
@@ -389,6 +471,12 @@ def run_prediction(ticker):
     projected_price = future_series.iloc[-1]
     trend_pct = ((projected_price - current_price) / current_price) * 100
 
+    # Typical 3-month range: ±1 standard deviation of daily moves, scaled to 63 days
+    daily_sigma = np.log(closes).diff().dropna().std()
+    sigma_3m    = float(daily_sigma * np.sqrt(future_days))
+    range_low   = float(projected_price * np.exp(-sigma_3m))
+    range_high  = float(projected_price * np.exp(sigma_3m))
+
     rsi_val   = hist["RSI"].iloc[-1]
     ma50_val  = hist["MA50"].iloc[-1]
     ma200_val = hist["MA200"].iloc[-1]
@@ -398,7 +486,9 @@ def run_prediction(ticker):
     macd_sig  = hist["MACD_signal"].iloc[-1]
 
     signals = []
-    if ma50_val > ma200_val:
+    if pd.isna(ma200_val) or pd.isna(ma50_val):
+        signals.append(("yellow", "🟡 MA200 n/a",     "Less than 200 days of history"))
+    elif ma50_val > ma200_val:
         signals.append(("green",  "🟢 Golden Cross",  "MA50 above MA200 — bullish trend"))
     else:
         signals.append(("red",    "🔴 Death Cross",   "MA50 below MA200 — bearish trend"))
@@ -435,17 +525,41 @@ def run_prediction(ticker):
         "current_price": current_price, "projected_price": projected_price,
         "trend_pct": trend_pct, "slope": slope,
         "recent_vol": recent_vol, "avg_vol": avg_vol,
+        "range_low": range_low, "range_high": range_high, "sigma_3m": sigma_3m * 100,
+        "as_of": hist.index[-1].strftime("%b %d, %Y"),
     }
 
 # ── AI helpers ────────────────────────────────────────────────────────────────
-def run_ai_analysis(ticker, tech_result, fundamentals, news):
+@st.cache_data(ttl=3600, show_spinner=False)
+def call_claude(prompt, max_tokens):
+    """One cached Claude call; same prompt within an hour costs nothing extra."""
+    if not ANTHROPIC_KEY:
+        return None
     try:
-        ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"Content-Type": "application/json",
+                     "x-api-key": ANTHROPIC_KEY,
+                     "anthropic-version": "2023-06-01"},
+            json={"model": AI_MODEL, "max_tokens": max_tokens,
+                  "messages": [{"role": "user", "content": prompt}]},
+            timeout=30,
+        )
+        if r.status_code != 200:
+            return None
+        return r.json()["content"][0]["text"]
+    except Exception:
+        return None
+
+def run_ai_analysis(ticker, tech_result, fundamentals, news, bt=None):
+    try:
         if not ANTHROPIC_KEY:
             return None
         signals_text = "\n".join([f"- {label}: {desc}" for _, label, desc in tech_result["signals"]])
         news_text    = "\n".join([f"- {n['title']} ({n['source']})" for n in news[:5]]) if news else "No recent news found."
         fund_text    = "".join([f"- {k}: {v}\n" for k, v in fundamentals.items() if k != "_raw"])
+        bt_text      = (f"called the 3-month direction right {bt['hit_rate']:.0f}% of the time over {bt['n']} monthly tests "
+                        f"(the stock simply rose in {bt['always_up']:.0f}% of those windows)") if bt else "not available"
         prompt = f"""You are a professional equity analyst. Analyze {ticker} and give a clear investment verdict.
 
 TECHNICAL SIGNALS:
@@ -453,6 +567,8 @@ TECHNICAL SIGNALS:
 
 3-Month Price Projection: {tech_result['trend_pct']:+.1f}% (linear regression trend)
 Current Price: ${tech_result['current_price']:.2f}
+Typical 3-month range (±1σ): ${tech_result['range_low']:.2f} – ${tech_result['range_high']:.2f}
+Backtest of this trend method on this stock: {bt_text}
 RSI: {tech_result['rsi']:.1f}
 
 FUNDAMENTAL DATA:
@@ -475,18 +591,11 @@ BEARS:
 - [point]
 CATALYSTS:
 - [point]
-- [point]"""
-        r = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={"Content-Type": "application/json",
-                     "x-api-key": ANTHROPIC_KEY,
-                     "anthropic-version": "2023-06-01"},
-            json={"model": "claude-haiku-4-5-20251001", "max_tokens": 1000,
-                  "messages": [{"role": "user", "content": prompt}]},
-            timeout=30,
-        )
-        return r.json()["content"][0]["text"]
-    except:
+- [point]
+
+Weigh the backtest honestly: if the trend method is no better than the baseline, say so and lean on fundamentals and news instead."""
+        return call_claude(prompt, 1000)
+    except Exception:
         return None
 
 def parse_ai_response(text):
@@ -495,8 +604,10 @@ def parse_ai_response(text):
     current_section = None
     for line in lines:
         line = line.strip()
+        line = line.replace("**", "")
         if line.startswith("VERDICT:"):
-            result["verdict"] = line.replace("VERDICT:", "").strip()
+            v = line.replace("VERDICT:", "").strip().upper()
+            result["verdict"] = next((x for x in ("BUY", "HOLD", "SELL") if x in v), "HOLD")
         elif line.startswith("CONFIDENCE:"):
             result["confidence"] = line.replace("CONFIDENCE:", "").strip()
         elif line.startswith("SUMMARY:"):
@@ -508,7 +619,7 @@ def parse_ai_response(text):
             current_section = "bears";  result["bears"] = []
         elif line == "CATALYSTS:":
             current_section = "catalysts"; result["catalysts"] = []
-        elif line.startswith("- ") and current_section in ("bulls", "bears", "catalysts"):
+        elif line[:2] in ("- ", "• ", "* ") and current_section in ("bulls", "bears", "catalysts"):
             result.setdefault(current_section, []).append(line[2:])
         elif current_section == "summary" and line and not any(
             line.startswith(s) for s in ["BULLS:", "BEARS:", "CATALYSTS:", "VERDICT:", "CONFIDENCE:"]):
@@ -526,28 +637,34 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.divider()
     st.markdown("<div style='color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:8px;'>➕ Add Ticker</div>", unsafe_allow_html=True)
-    new_ticker = st.text_input("", placeholder="e.g. MSFT", label_visibility="collapsed").strip().upper()
+    new_ticker = st.text_input("Add ticker", placeholder="e.g. MSFT", label_visibility="collapsed").strip().upper()
     if st.button("Add to Watchlist", use_container_width=True):
-        if new_ticker and new_ticker not in st.session_state.watchlist:
+        if new_ticker and not is_valid_ticker_text(new_ticker):
+            st.error("That doesn't look like a ticker.")
+        elif new_ticker and fetch_history(new_ticker, "5d").empty:
+            st.error(f"Couldn't find {new_ticker} on Yahoo Finance.")
+        elif new_ticker and new_ticker not in st.session_state.watchlist:
             st.session_state.watchlist.append(new_ticker)
             save_json(WATCHLIST_FILE, st.session_state.watchlist)
-            st.cache_data.clear()
+            fetch_quotes.clear()
             st.success(f"✅ {new_ticker} added!")
         elif new_ticker in st.session_state.watchlist:
             st.warning("Already on watchlist.")
     st.divider()
     st.markdown("<div style='color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:8px;'>🗑️ Remove Ticker</div>", unsafe_allow_html=True)
     if st.session_state.watchlist:
-        to_remove = st.selectbox("", st.session_state.watchlist, label_visibility="collapsed")
+        to_remove = st.selectbox("Remove ticker", st.session_state.watchlist, label_visibility="collapsed")
         if st.button("Remove", use_container_width=True):
             st.session_state.watchlist.remove(to_remove)
             save_json(WATCHLIST_FILE, st.session_state.watchlist)
-            st.cache_data.clear()
+            fetch_quotes.clear()
             st.rerun()
     st.divider()
     if st.button("🔄 Refresh Prices", use_container_width=True):
-        st.cache_data.clear()
+        fetch_quotes.clear(); fetch_last_price.clear()
         st.rerun()
+    if not PERSIST:
+        st.caption("Your watchlist and trades are private to this browser session.")
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -557,7 +674,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["📊 Watchlist", "📓 Trade Log", "🔮 Predictions"])
+tab3, tab1, tab2 = st.tabs(["🔮 Predictions", "📊 Watchlist", "📓 Trade Log"])
 
 # ── TAB 1: Watchlist ──────────────────────────────────────────────────────────
 with tab1:
@@ -611,6 +728,11 @@ with tab1:
             else:
                 range_html = ""
 
+            if price == 0:
+                st.markdown(f'<div class="ticker-card"><span style="color:white;font-weight:700;">{ticker}</span>'
+                            f'<span style="color:#a29db8;font-size:0.82rem;margin-left:10px;">No price data. Check the symbol or try Refresh.</span></div>',
+                            unsafe_allow_html=True)
+                continue
             card_html = (f'<div class="ticker-card">'
                 f'<div style="display:flex;justify-content:space-between;align-items:center;">'
                 f'<div><span style="color:white;font-size:1.1rem;font-weight:700;">{ticker}</span>'
@@ -624,30 +746,21 @@ with tab1:
 
             col_sum, col_analyze, col_space = st.columns([1, 1, 3])
             with col_sum:
-                if st.button("✦ Summarize", key=f"sum_{ticker}"):
+                if ANTHROPIC_KEY and st.button("✦ Summarize", key=f"sum_{ticker}"):
                     with st.spinner(""):
                         try:
-                            ANTHROPIC_KEY = st.secrets.get("ANTHROPIC_KEY", "")
                             prompt = (f"{ticker} is {arrow} {abs(pct):.2f}% today at ${price:.2f}, "
                                       f"with 3-month avg volume of {vol}M. Write exactly 2 sentences summarizing "
                                       f"how this stock is doing today and what it might mean. Be specific and concise.")
-                            r = requests.post(
-                                "https://api.anthropic.com/v1/messages",
-                                headers={"Content-Type": "application/json",
-                                         "x-api-key": ANTHROPIC_KEY,
-                                         "anthropic-version": "2023-06-01"},
-                                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 120,
-                                      "messages": [{"role": "user", "content": prompt}]},
-                                timeout=15,
-                            )
-                            st.session_state[f"summary_{ticker}"] = r.json()["content"][0]["text"].strip()
-                        except:
+                            out = call_claude(prompt, 120)
+                            st.session_state[f"summary_{ticker}"] = out.strip() if out else "Could not generate summary — try again."
+                        except Exception:
                             st.session_state[f"summary_{ticker}"] = "Could not generate summary — try again."
             with col_analyze:
                 if st.button("⚡ Analyze", key=f"analyze_{ticker}"):
                     st.session_state["pred_ticker"]      = ticker
                     st.session_state["auto_run_analysis"] = True
-                    st.toast(f"Head to the **Predictions** tab to see {ticker} analysis!", icon="🔮")
+                    st.toast(f"{ticker} analysis is ready in the **Predictions** tab", icon="🔮")
 
             if f"summary_{ticker}" in st.session_state:
                 st.markdown(
@@ -661,17 +774,19 @@ with tab1:
 
         chart_col_sel, chart_col_period = st.columns([2, 2])
         with chart_col_sel:
-            chart_ticker = st.selectbox("", st.session_state.watchlist,
+            chart_ticker = st.selectbox("Chart ticker", st.session_state.watchlist,
                                         key="chart_sel", label_visibility="collapsed")
         with chart_col_period:
-            period_label = st.radio("", ["1W", "1M", "3M", "6M"], index=1,
+            period_label = st.radio("Chart period", ["1W", "1M", "3M", "6M"], index=1,
                                     horizontal=True, key="chart_period",
                                     label_visibility="collapsed")
 
         period_map = {"1W": "5d", "1M": "1mo", "3M": "3mo", "6M": "6mo"}
         if chart_ticker:
             hist_chart = fetch_history(chart_ticker, period_map[period_label])
-            if not hist_chart.empty:
+            if hist_chart.empty:
+                st.info(f"No chart data for {chart_ticker} right now.")
+            else:
                 st.plotly_chart(make_ohlcv_chart(hist_chart, chart_ticker),
                                 use_container_width=True, config={"displayModeBar": False})
 
@@ -695,7 +810,7 @@ with tab2:
                 st.error("Enter a ticker.")
             else:
                 st.session_state.trades.append({
-                    "id": len(st.session_state.trades) + 1,
+                    "id": max([t["id"] for t in st.session_state.trades], default=0) + 1,
                     "ticker": t_ticker, "date": str(t_date), "side": t_side,
                     "entry": t_entry, "exit": t_exit if t_exit > 0 else None,
                     "shares": t_shares, "status": t_status, "notes": t_notes,
@@ -715,12 +830,12 @@ with tab2:
                     p = (row["exit"] - row["entry"]) * row["shares"]
                     pnl_col.append(round(-p if row["side"] == "Short" else p, 2))
                 elif row["status"] == "Open":
-                    live = yf.Ticker(row["ticker"]).fast_info.last_price or 0
+                    live = fetch_last_price(row["ticker"])
                     p    = (live - row["entry"]) * row["shares"]
                     pnl_col.append(round(-p if row["side"] == "Short" else p, 2))
                 else:
                     pnl_col.append(None)
-            except:
+            except Exception:
                 pnl_col.append(None)
 
         trades_df["P&L ($)"] = pnl_col
@@ -766,6 +881,8 @@ with tab2:
                      "P&L ($)": "${:,.2f}"}, na_rep="—")
         )
         st.dataframe(styled_trades, use_container_width=True, hide_index=True)
+        st.download_button("⬇️ Download trades (CSV)", display_df.to_csv(index=False),
+                           file_name="stockiq_trades.csv", mime="text/csv")
 
         with st.expander("🗑️ Delete a Trade"):
             trade_ids = [f"#{t['id']} — {t['ticker']} ({t['date']})" for t in st.session_state.trades]
@@ -776,6 +893,10 @@ with tab2:
                 st.rerun()
 
 # ── TAB 3: Predictions ────────────────────────────────────────────────────────
+def metric(label, value, color="", sub=""):
+    sub_html = f'<div style="color:#a29db8;font-size:0.72rem;margin-top:6px;">{sub}</div>' if sub else ""
+    return f'<div class="metric-card"><div class="metric-label">{label}</div><div class="metric-value {color}">{value}</div>{sub_html}</div>'
+
 with tab3:
     st.markdown("""
     <div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
@@ -788,149 +909,200 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    # Pre-fill ticker if "Analyze" was clicked from watchlist
-    default_ticker = st.session_state.get("pred_ticker", "")
-    auto_run       = st.session_state.pop("auto_run_analysis", False)
+    # "Analyze" from the watchlist pre-fills and auto-runs
+    if st.session_state.pop("auto_run_analysis", False):
+        st.session_state["analysis_ticker"] = st.session_state.get("pred_ticker", "")
+        st.session_state["pred_ticker_input"] = st.session_state["analysis_ticker"]
 
-    col_input, col_btn = st.columns([3, 1])
-    with col_input:
-        pred_ticker = st.text_input("", placeholder="Enter ticker — e.g. AAPL, NVDA, TSLA",
-                                    value=default_ticker,
-                                    key="pred_ticker_input",
-                                    label_visibility="collapsed").strip().upper()
-    with col_btn:
-        run_btn = st.button("⚡ Analyze", use_container_width=True) or auto_run
+    with st.form("analyze_form", border=False):
+        col_input, col_btn = st.columns([3, 1])
+        with col_input:
+            pred_ticker = st.text_input("Ticker", placeholder="Enter ticker — e.g. AAPL, NVDA, TSLA",
+                                        key="pred_ticker_input",
+                                        label_visibility="collapsed").strip().upper()
+        with col_btn:
+            submitted = st.form_submit_button("⚡ Analyze", use_container_width=True)
+    if submitted:
+        st.session_state["analysis_ticker"] = pred_ticker
 
-    if run_btn:
-        if not pred_ticker:
-            st.error("Enter a ticker first.")
-        else:
-            with st.spinner(f"Pulling data for {pred_ticker}..."):
-                result       = run_prediction(pred_ticker)
+    st.markdown('<div style="color:#a29db8;font-size:0.78rem;margin:2px 0 6px 0;">Try one:</div>', unsafe_allow_html=True)
+    quick = st.columns(5)
+    for qc, qt in zip(quick, ["AAPL", "NVDA", "TSLA", "MSFT", "SPY"]):
+        with qc:
+            st.button(qt, key=f"quick_{qt}", use_container_width=True,
+                      on_click=lambda t=qt: st.session_state.update(analysis_ticker=t, pred_ticker_input=t))
+
+    # Results stay on screen across reruns (e.g. clicking "Add to Watchlist")
+    pred_ticker = st.session_state.get("analysis_ticker", "")
+    if not pred_ticker:
+        st.markdown('<div style="color:#a29db8;font-size:0.88rem;padding:24px 0;">Pick a stock above to see live technicals, '
+                    'fundamentals, news, a 3-month trend projection with an honest backtest, and an AI bull/bear verdict.</div>',
+                    unsafe_allow_html=True)
+    elif not is_valid_ticker_text(pred_ticker):
+        st.error("That doesn't look like a ticker. Try something like AAPL or NVDA.")
+    else:
+        with st.status(f"Analyzing {pred_ticker}…", expanded=False) as status:
+            status.update(label=f"Pulling price history for {pred_ticker}…")
+            result = run_prediction(pred_ticker)
+            if result is not None:
+                status.update(label="Fundamentals + news…")
                 fundamentals = fetch_fundamentals(pred_ticker)
                 news         = fetch_news(pred_ticker)
-
-            if result is None:
-                st.error("Not enough historical data. Try a different ticker.")
+                status.update(label="Backtesting the trend model on 5 years of data…")
+                bt = backtest_trend(pred_ticker)
+                status.update(label="Asking the AI analyst…")
+                ai_raw = run_ai_analysis(pred_ticker, result, fundamentals, news, bt)
+                status.update(label=f"{pred_ticker} analysis ready", state="complete")
             else:
-                st.divider()
+                status.update(label="No data", state="error")
 
-                # Metrics row
-                p1, p2, p3, p4 = st.columns(4)
-                trend_color = "green" if result["trend_pct"] >= 0 else "red"
-                with p1:
-                    st.markdown(f'<div class="metric-card"><div class="metric-label">Current Price</div><div class="metric-value">${result["current_price"]:.2f}</div></div>', unsafe_allow_html=True)
-                with p2:
-                    st.markdown(f'<div class="metric-card"><div class="metric-label">3-Month Target</div><div class="metric-value {trend_color}">${result["projected_price"]:.2f}</div></div>', unsafe_allow_html=True)
-                with p3:
-                    st.markdown(f'<div class="metric-card"><div class="metric-label">Projected Move</div><div class="metric-value {trend_color}">{result["trend_pct"]:+.1f}%</div></div>', unsafe_allow_html=True)
-                with p4:
-                    rsi_c = "red" if result["rsi"] > 70 else ("green" if result["rsi"] < 30 else "")
-                    st.markdown(f'<div class="metric-card"><div class="metric-label">RSI (14-day)</div><div class="metric-value {rsi_c}">{result["rsi"]:.1f}</div></div>', unsafe_allow_html=True)
+        if result is None:
+            st.error(f"Couldn't find enough price history for **{pred_ticker}**. Check the symbol, "
+                     "or Yahoo Finance may be temporarily unavailable — try again in a minute.")
+        else:
+            st.caption(f"Data as of {result['as_of']} · prices from Yahoo Finance")
 
-                # Add to Watchlist button
-                if pred_ticker not in st.session_state.watchlist:
-                    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
-                    add_col, _ = st.columns([1, 4])
-                    with add_col:
-                        if st.button(f"➕ Add {pred_ticker} to Watchlist"):
-                            st.session_state.watchlist.append(pred_ticker)
-                            save_json(WATCHLIST_FILE, st.session_state.watchlist)
-                            st.cache_data.clear()
-                            st.success(f"✅ {pred_ticker} added to watchlist!")
+            p1, p2, p3, p4 = st.columns(4)
+            trend_color = "green" if result["trend_pct"] >= 0 else "red"
+            with p1:
+                st.markdown(metric("Current Price", f'${result["current_price"]:.2f}'), unsafe_allow_html=True)
+            with p2:
+                st.markdown(metric("3-Month Target", f'${result["projected_price"]:.2f}', trend_color,
+                                   f'Typical range ${result["range_low"]:.0f}–${result["range_high"]:.0f}'), unsafe_allow_html=True)
+            with p3:
+                st.markdown(metric("Projected Move", f'{result["trend_pct"]:+.1f}%', trend_color,
+                                   f'±{result["sigma_3m"]:.0f}% typical swing'), unsafe_allow_html=True)
+            with p4:
+                rsi_c = "red" if result["rsi"] > 70 else ("green" if result["rsi"] < 30 else "")
+                st.markdown(metric("RSI (14-day)", f'{result["rsi"]:.1f}', rsi_c), unsafe_allow_html=True)
 
-                st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
-                left_col, right_col = st.columns([1, 1])
+            # Backtest: how trustworthy is the projection for this stock?
+            if bt:
+                edge = bt["hit_rate"] - max(bt["always_up"], 100 - bt["always_up"])
+                verdict_txt = ("beats" if edge > 3 else "roughly matches" if edge > -3 else "trails")
+                st.markdown(f"""
+                <div class="summary-box">
+                  <b>How reliable is that target?</b> We ran this exact trend method on {pred_ticker} every month since
+                  {bt['start']} ({bt['n']} tests, each using only data available at the time). It called the 3-month
+                  direction right <b>{bt['hit_rate']:.0f}%</b> of the time, vs. a naive "always guess the majority" baseline of
+                  {max(bt['always_up'], 100 - bt['always_up']):.0f}%, so it <b>{verdict_txt}</b> the baseline. Average miss on the
+                  % move: {bt['mae']:.1f} points. Treat the target as a trend line, not a forecast.
+                </div>""", unsafe_allow_html=True)
 
-                with left_col:
-                    st.markdown('<div class="section-title">📊 Fundamentals</div>', unsafe_allow_html=True)
-                    if "error" not in fundamentals:
-                        fund_display = {k: v for k, v in fundamentals.items() if k != "_raw"}
-                        rows_html    = ""
-                        for k, v in fund_display.items():
-                            color_class = ""
-                            if k == "Revenue Growth" and v != "N/A":
-                                color_class = "green" if not v.startswith("-") and v != "0.0%" else "red"
-                            if k == "Analyst Rating":
-                                color_class = "green" if "BUY" in v else ("red" if "SELL" in v else "")
-                            rows_html += f'<div class="fund-row"><span class="fund-key">{k}</span><span class="fund-val {color_class}">{v}</span></div>'
-                        st.markdown(f'<div class="fund-card">{rows_html}</div>', unsafe_allow_html=True)
+            if pred_ticker not in st.session_state.watchlist:
+                st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+                if st.button(f"➕ Add {pred_ticker} to Watchlist"):
+                    st.session_state.watchlist.append(pred_ticker)
+                    save_json(WATCHLIST_FILE, st.session_state.watchlist)
+                    fetch_quotes.clear()
+                    st.toast(f"{pred_ticker} added to watchlist", icon="✅")
+                    st.rerun()
 
-                with right_col:
-                    st.markdown('<div class="section-title">📰 Recent News</div>', unsafe_allow_html=True)
-                    if news:
-                        for n in news:
-                            st.markdown(
-                                f'<a href="{n["link"]}" target="_blank" style="text-decoration:none;">'
-                                f'<div class="news-item" style="cursor:pointer;">'
-                                f'<div class="news-title">{n["title"]}</div>'
-                                f'<div class="news-meta">{n["source"]} &nbsp;·&nbsp; {n["pub"]}</div>'
-                                f'</div></a>',
-                                unsafe_allow_html=True,
-                            )
-                    else:
-                        st.markdown('<div style="color:#a29db8;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
-
-                # Technical signals
-                st.markdown('<div class="section-title" style="margin-top:24px;">📡 Technical Signals</div>', unsafe_allow_html=True)
-                pills_html = ""
-                for color, label, desc in result["signals"]:
-                    pills_html += f'<span class="signal-pill pill-{color}">{label}</span> <span style="color:rgba(255,255,255,0.5);font-size:0.82rem;">{desc}</span><br style="margin-bottom:6px;">'
-                st.markdown(f'<div style="line-height:2.2;">{pills_html}</div>', unsafe_allow_html=True)
-
-                # AI Verdict
-                st.markdown('<div class="section-title" style="margin-top:24px;">🤖 AI Verdict</div>', unsafe_allow_html=True)
-                with st.spinner("Synthesizing AI analysis..."):
-                    ai_raw = run_ai_analysis(pred_ticker, result, fundamentals, news)
-
-                if ai_raw:
-                    ai         = parse_ai_response(ai_raw)
-                    verdict    = ai.get("verdict",    "HOLD")
-                    confidence = ai.get("confidence", "Medium")
-                    summary    = ai.get("summary",    "")
-                    bulls      = ai.get("bulls",      [])
-                    bears      = ai.get("bears",      [])
-                    catalysts  = ai.get("catalysts",  [])
-                    verdict_color = {"BUY": "#34d27b", "SELL": "#f0584a", "HOLD": "#f0b429"}.get(verdict, "#8b5cf6")
-                    st.markdown(f"""
-                    <div style='display:flex;align-items:center;gap:16px;margin-bottom:16px;'>
-                      <div style='background:#17132b;border:2px solid {verdict_color};border-radius:12px;
-                                  padding:12px 28px;text-align:center;min-width:100px;'>
-                        <div style='color:{verdict_color};font-size:1.8rem;font-weight:800;">{verdict}</div>
-                        <div style='color:#a29db8;font-size:0.75rem;margin-top:2px;'>{confidence} Confidence</div>
-                      </div>
-                      <div style='color:#d8d2ee;font-size:0.9rem;line-height:1.65;flex:1;'>{summary}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    bull_col, bear_col, cat_col = st.columns(3)
-                    with bull_col:
-                        st.markdown('<div style="color:#34d27b;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🟢 Bull Case</div>', unsafe_allow_html=True)
-                        for pt in bulls:
+            # AI Verdict (moved up: it's the headline)
+            st.markdown('<div class="section-title" style="margin-top:24px;">🤖 AI Verdict</div>', unsafe_allow_html=True)
+            ai = parse_ai_response(ai_raw) if ai_raw else None
+            if ai and ai.get("summary"):
+                verdict    = ai.get("verdict",    "HOLD")
+                confidence = ai.get("confidence", "Medium")
+                summary    = ai.get("summary",    "")
+                bulls      = ai.get("bulls",      [])
+                bears      = ai.get("bears",      [])
+                catalysts  = ai.get("catalysts",  [])
+                verdict_color = {"BUY": "#34d27b", "SELL": "#f0584a", "HOLD": "#f0b429"}.get(verdict, "#8b5cf6")
+                st.markdown(f"""
+                <div class="verdict-row">
+                  <div style="background:#17132b;border:2px solid {verdict_color};border-radius:12px;
+                              padding:12px 28px;text-align:center;min-width:100px;">
+                    <div style="color:{verdict_color};font-size:1.8rem;font-weight:800;">{verdict}</div>
+                    <div style="color:#a29db8;font-size:0.75rem;margin-top:2px;">{confidence} Confidence</div>
+                  </div>
+                  <div style="color:#d8d2ee;font-size:0.9rem;line-height:1.65;flex:1;">{summary}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                bull_col, bear_col, cat_col = st.columns(3)
+                for col, title, color, pts in [(bull_col, "🟢 Bull Case", "#34d27b", bulls),
+                                               (bear_col, "🔴 Bear Case", "#f0584a", bears),
+                                               (cat_col,  "⚡ Catalysts", "#f0b429", catalysts)]:
+                    with col:
+                        st.markdown(f'<div style="color:{color};font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">{title}</div>', unsafe_allow_html=True)
+                        for pt in pts:
                             st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
-                    with bear_col:
-                        st.markdown('<div style="color:#f0584a;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🔴 Bear Case</div>', unsafe_allow_html=True)
-                        for pt in bears:
-                            st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
-                    with cat_col:
-                        st.markdown('<div style="color:#f0b429;font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚡ Catalysts</div>', unsafe_allow_html=True)
-                        for pt in catalysts:
-                            st.markdown(f'<div style="color:#d8d2ee;font-size:0.85rem;padding:6px 0;border-bottom:1px solid #221c3a;">• {pt}</div>', unsafe_allow_html=True)
+                st.caption(f"Generated by Claude ({AI_MODEL}) from the data on this page. Cached for 1 hour. Not financial advice.")
+            else:
+                greens = sum(1 for c, _, _ in result["signals"] if c == "green")
+                reds   = sum(1 for c, _, _ in result["signals"] if c == "red")
+                lean   = "Bullish" if greens > reds else ("Bearish" if reds > greens else "Mixed")
+                lean_c = {"Bullish": "#34d27b", "Bearish": "#f0584a"}.get(lean, "#f0b429")
+                why = "AI analyst is not configured on this deployment" if not ANTHROPIC_KEY else "AI analyst is temporarily unavailable"
+                st.markdown(f"""
+                <div class="verdict-row">
+                  <div style="background:#17132b;border:2px solid {lean_c};border-radius:12px;padding:12px 28px;text-align:center;min-width:100px;">
+                    <div style="color:{lean_c};font-size:1.5rem;font-weight:800;">{lean}</div>
+                    <div style="color:#a29db8;font-size:0.75rem;margin-top:2px;">{greens} bullish · {reds} bearish signals</div>
+                  </div>
+                  <div style="color:#d8d2ee;font-size:0.9rem;line-height:1.65;flex:1;">
+                    {why}, so this is a simple tally of the technical signals below instead of a full AI verdict.
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+            # Technical signals
+            st.markdown('<div class="section-title" style="margin-top:24px;">📡 Technical Signals</div>', unsafe_allow_html=True)
+            pills_html = ""
+            for color, label, desc in result["signals"]:
+                pills_html += f'<div style="margin-bottom:6px;"><span class="signal-pill pill-{color}">{label}</span> <span style="color:rgba(255,255,255,0.6);font-size:0.82rem;">{desc}</span></div>'
+            st.markdown(f'<div>{pills_html}</div>', unsafe_allow_html=True)
+
+            # Charts
+            st.markdown('<div class="section-title" style="margin-top:28px;">📈 Price History + 3-Month Projection</div>', unsafe_allow_html=True)
+            st.plotly_chart(make_analysis_chart(result), use_container_width=True,
+                            config={"displayModeBar": False})
+
+            chart_col1, chart_col2 = st.columns(2)
+            with chart_col1:
+                st.markdown('<div class="section-title">📊 RSI (14-Day)</div>', unsafe_allow_html=True)
+                st.plotly_chart(make_rsi_chart(result["hist"]["RSI"].dropna()),
+                                use_container_width=True, config={"displayModeBar": False})
+                st.caption("RSI > 70 = overbought · RSI < 30 = oversold")
+            with chart_col2:
+                st.markdown('<div class="section-title">📊 MACD</div>', unsafe_allow_html=True)
+                st.plotly_chart(make_macd_chart(result["hist"]),
+                                use_container_width=True, config={"displayModeBar": False})
+                st.caption("MACD above signal = bullish momentum")
+
+            st.markdown('<div style="margin-top:24px;"></div>', unsafe_allow_html=True)
+            left_col, right_col = st.columns([1, 1])
+            with left_col:
+                st.markdown('<div class="section-title">📊 Fundamentals</div>', unsafe_allow_html=True)
+                if "error" not in fundamentals:
+                    rows_html = ""
+                    for k, v in {k: v for k, v in fundamentals.items() if k != "_raw"}.items():
+                        color_class = ""
+                        if k == "Revenue Growth" and v != "N/A":
+                            color_class = "green" if not v.startswith("-") and v != "0.0%" else "red"
+                        if k == "Analyst Rating":
+                            color_class = "green" if "BUY" in v else ("red" if "SELL" in v else "")
+                        rows_html += f'<div class="fund-row"><span class="fund-key">{k}</span><span class="fund-val {color_class}">{v}</span></div>'
+                    st.markdown(f'<div class="fund-card">{rows_html}</div>', unsafe_allow_html=True)
                 else:
-                    st.warning("AI analysis unavailable — check your ANTHROPIC_KEY in Streamlit secrets.")
+                    st.markdown('<div style="color:#a29db8;font-size:0.88rem;">Fundamentals unavailable right now.</div>', unsafe_allow_html=True)
+            with right_col:
+                st.markdown('<div class="section-title">📰 Recent News</div>', unsafe_allow_html=True)
+                if news:
+                    for n in news:
+                        st.markdown(
+                            f'<a href="{n["link"]}" target="_blank" rel="noopener" style="text-decoration:none;">'
+                            f'<div class="news-item" style="cursor:pointer;">'
+                            f'<div class="news-title">{n["title"]}</div>'
+                            f'<div class="news-meta">{n["source"]} &nbsp;·&nbsp; {n["pub"]}</div>'
+                            f'</div></a>',
+                            unsafe_allow_html=True,
+                        )
+                else:
+                    st.markdown('<div style="color:#a29db8;font-size:0.88rem;">No recent news found.</div>', unsafe_allow_html=True)
 
-                # Charts
-                st.markdown('<div class="section-title" style="margin-top:28px;">📈 Price History + 3-Month Projection</div>', unsafe_allow_html=True)
-                st.plotly_chart(make_analysis_chart(result), use_container_width=True,
-                                config={"displayModeBar": False})
-
-                chart_col1, chart_col2 = st.columns(2)
-                with chart_col1:
-                    st.markdown('<div class="section-title">📊 RSI (14-Day)</div>', unsafe_allow_html=True)
-                    st.plotly_chart(make_rsi_chart(result["hist"]["RSI"].dropna()),
-                                    use_container_width=True, config={"displayModeBar": False})
-                    st.caption("RSI > 70 = overbought · RSI < 30 = oversold")
-                with chart_col2:
-                    st.markdown('<div class="section-title">📊 MACD</div>', unsafe_allow_html=True)
-                    st.plotly_chart(make_macd_chart(result["hist"]),
-                                    use_container_width=True, config={"displayModeBar": False})
-                    st.caption("MACD above signal = bullish momentum")
+# ── Footer ────────────────────────────────────────────────────────────────────
+st.markdown("""
+<div style="border-top:1px solid #221c3a;margin-top:40px;padding:16px 0 8px 0;color:#a29db8;font-size:0.75rem;line-height:1.6;">
+  StockIQ is an educational project, not financial advice. Data from Yahoo Finance and Google News may be delayed or incomplete.
+  Projections are statistical trend lines, not predictions of future prices.
+</div>""", unsafe_allow_html=True)
