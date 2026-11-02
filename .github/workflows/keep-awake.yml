@@ -1,0 +1,21 @@
+name: Keep StockIQ awake
+
+# Streamlit Community Cloud sleeps apps after ~12 hours with no visitors.
+# This opens the app in a headless browser a few times a day (and wakes it
+# if it is already asleep). Free on public repos; no secrets needed.
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours
+  workflow_dispatch: {}       # "Run workflow" button for a manual wake
+
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install playwright==1.* && python -m playwright install --with-deps chromium
+      - run: python .github/scripts/wake.py
