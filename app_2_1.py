@@ -647,8 +647,12 @@ def parse_ai_response(text):
     lines  = text.strip().split("\n")
     current_section = None
     for line in lines:
-        line = line.strip()
-        line = line.replace("**", "")
+        line = line.replace("**", "").replace("__", "").strip()
+        line = re.sub(r"^#+\s*", "", line)                       # "## VERDICT: BUY"
+        m = re.match(r"^(VERDICT|CONFIDENCE|SUMMARY|BULLS|BEARS|CATALYSTS)\b\s*[:\-\u2013]?\s*(.*)$", line, re.I)
+        if m:                                                    # "Verdict - Buy", "bulls:" etc.
+            key, rest = m.group(1).upper(), m.group(2).strip()
+            line = f"{key}:" + (f" {rest}" if rest else "")
         if line.startswith("VERDICT:"):
             v = line.replace("VERDICT:", "").strip().upper()
             result["verdict"] = next((x for x in ("BUY", "HOLD", "SELL") if x in v), "HOLD")
@@ -1045,6 +1049,8 @@ with tab3:
             # AI Verdict (moved up: it's the headline)
             st.markdown('<div class="section-title" style="margin-top:24px;">🤖 AI Verdict</div>', unsafe_allow_html=True)
             ai = parse_ai_response(ai_raw) if ai_raw else None
+            if ai_raw and not (ai and ai.get("summary")):
+                st.session_state["ai_error"] = f"got a reply but couldn't read its format ({len(ai_raw)} chars, starts: {ai_raw[:60]!r})"
             if ai and ai.get("summary"):
                 verdict    = ai.get("verdict",    "HOLD")
                 confidence = ai.get("confidence", "Medium")
@@ -1079,7 +1085,7 @@ with tab3:
                 lean_c = {"Bullish": "#34d27b", "Bearish": "#f0584a"}.get(lean, "#f0b429")
                 why = "AI analyst is not configured on this deployment" if not ANTHROPIC_KEY else "AI analyst is temporarily unavailable"
                 if st.query_params.get("debug") == "1":
-                    why += f" (debug v3: {st.session_state.get('ai_error', 'no error recorded')})"
+                    why += f" (debug v4: {st.session_state.get('ai_error', 'no error recorded')})"
                 st.markdown(f"""
                 <div class="verdict-row">
                   <div style="background:#17132b;border:2px solid {lean_c};border-radius:12px;padding:12px 28px;text-align:center;min-width:100px;">
