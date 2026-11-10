@@ -637,7 +637,9 @@ CATALYSTS:
 
 Weigh the backtest honestly: if the trend method is no better than the baseline, say so and lean on fundamentals and news instead."""
         return call_claude(prompt, 1000)
-    except Exception:
+    except Exception as e:
+        st.session_state["ai_error"] = f"the prompt couldn't be built ({type(e).__name__})"
+        print(f"[StockIQ] AI analysis failed before the API call: {type(e).__name__}: {e}", flush=True)
         return None
 
 def parse_ai_response(text):
@@ -1076,8 +1078,8 @@ with tab3:
                 lean   = "Bullish" if greens > reds else ("Bearish" if reds > greens else "Mixed")
                 lean_c = {"Bullish": "#34d27b", "Bearish": "#f0584a"}.get(lean, "#f0b429")
                 why = "AI analyst is not configured on this deployment" if not ANTHROPIC_KEY else "AI analyst is temporarily unavailable"
-                if ANTHROPIC_KEY and st.query_params.get("debug") == "1" and st.session_state.get("ai_error"):
-                    why += f" ({st.session_state['ai_error']})"
+                if st.query_params.get("debug") == "1":
+                    why += f" (debug v3: {st.session_state.get('ai_error', 'no error recorded')})"
                 st.markdown(f"""
                 <div class="verdict-row">
                   <div style="background:#17132b;border:2px solid {lean_c};border-radius:12px;padding:12px 28px;text-align:center;min-width:100px;">
