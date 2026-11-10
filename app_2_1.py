@@ -605,6 +605,8 @@ def run_ai_analysis(ticker, tech_result, fundamentals, news, bt=None):
                         f"(the stock simply rose in {bt['always_up']:.0f}% of those windows)") if bt else "not available"
         prompt = f"""You are a professional equity analyst. Analyze {ticker} and give a clear investment verdict.
 
+Today's date is {datetime.now().strftime('%B %d, %Y')}. Treat the news headlines and data below as current, and don't refer to product cycles, earnings, or events from your own memory as if they were recent. If you mention a specific event, it should come from the headlines below.
+
 TECHNICAL SIGNALS:
 {signals_text}
 
@@ -798,7 +800,7 @@ with tab1:
                 if ANTHROPIC_KEY and st.button("✦ Summarize", key=f"sum_{ticker}"):
                     with st.spinner(""):
                         try:
-                            prompt = (f"{ticker} is {arrow} {abs(pct):.2f}% today at ${price:.2f}, "
+                            prompt = (f"Today is {datetime.now().strftime('%B %d, %Y')}. {ticker} is {arrow} {abs(pct):.2f}% today at ${price:.2f}, "
                                       f"with 3-month avg volume of {vol}M. Write exactly 2 sentences summarizing "
                                       f"how this stock is doing today and what it might mean. Be specific and concise.")
                             out = call_claude(prompt, 120)
