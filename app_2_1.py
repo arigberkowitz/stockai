@@ -530,11 +530,32 @@ def run_prediction(ticker):
     }
 
 # ── AI helpers ────────────────────────────────────────────────────────────────
+class AIError(Exception):
+    pass
+
+def _ai_reason(status, body):
+    """Turn an Anthropic error into a short, safe reason (never includes the key)."""
+    msg = ""
+    try:
+        msg = (body.get("error") or {}).get("message", "") or ""
+    except Exception:
+        pass
+    low = msg.lower()
+    if status == 401:
+        return "the API key was rejected (invalid or revoked)"
+    if "credit" in low or "billing" in low:
+        return "the Anthropic account is out of credits"
+    if status == 404 or "model" in low:
+        return f"the model {AI_MODEL} isn't available"
+    if status == 429:
+        return "the AI is rate-limited right now"
+    if status in (500, 529) or status >= 500:
+        return "Anthropic's API is having trouble"
+    return f"the API returned an error ({status})"
+
 @st.cache_data(ttl=3600, show_spinner=False)
-def call_claude(prompt, max_tokens):
-    """One cached Claude call; same prompt within an hour costs nothing extra."""
-    if not ANTHROPIC_KEY:
-        return None
+def _call_claude_cached(prompt, max_tokens):
+    # Raises on failure so Streamlit never caches a failed call.
     try:
         r = requests.post(
             "https://api.anthropic.com/v1/messages",
@@ -545,10 +566,31 @@ def call_claude(prompt, max_tokens):
                   "messages": [{"role": "user", "content": prompt}]},
             timeout=30,
         )
-        if r.status_code != 200:
-            return None
-        return r.json()["content"][0]["text"]
-    except Exception:
+    except requests.RequestException:
+        raise AIError("couldn't reach Anthropic's API")
+    if r.status_code != 200:
+        try:
+            body = r.json()
+        except Exception:
+            body = {}
+        raise AIError(_ai_reason(r.status_code, body))
+    return r.json()["content"][0]["text"]
+
+def call_claude(prompt, max_tokens):
+    """One cached Claude call; same prompt within an hour costs nothing extra. Failures are not cached."""
+    if not ANTHROPIC_KEY:
+        return None
+    try:
+        out = _call_claude_cached(prompt, max_tokens)
+        st.session_state.pop("ai_error", None)
+        return out
+    except AIError as e:
+        st.session_state["ai_error"] = str(e)
+        print(f"[StockIQ] Claude call failed: {e}", flush=True)
+        return None
+    except Exception as e:
+        st.session_state["ai_error"] = "an unexpected error occurred"
+        print(f"[StockIQ] Claude call failed: {type(e).__name__}", flush=True)
         return None
 
 def run_ai_analysis(ticker, tech_result, fundamentals, news, bt=None):
@@ -1034,6 +1076,8 @@ with tab3:
                 lean   = "Bullish" if greens > reds else ("Bearish" if reds > greens else "Mixed")
                 lean_c = {"Bullish": "#34d27b", "Bearish": "#f0584a"}.get(lean, "#f0b429")
                 why = "AI analyst is not configured on this deployment" if not ANTHROPIC_KEY else "AI analyst is temporarily unavailable"
+                if ANTHROPIC_KEY and st.query_params.get("debug") == "1" and st.session_state.get("ai_error"):
+                    why += f" ({st.session_state['ai_error']})"
                 st.markdown(f"""
                 <div class="verdict-row">
                   <div style="background:#17132b;border:2px solid {lean_c};border-radius:12px;padding:12px 28px;text-align:center;min-width:100px;">
